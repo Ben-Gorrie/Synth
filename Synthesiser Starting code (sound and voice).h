@@ -56,6 +56,18 @@ public:
         sinOsc.setSampleRate(getSampleRate());
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
         sinOsc.setFrequency(freq);
+
+        env.setSampleRate(getSampleRate());
+
+        juce::ADSR::Parameters envParams;
+        envParams.attack = 0.01;
+        envParams.decay = 0.25;
+        envParams.sustain = 0.2;
+        envParams.release = 1;
+
+        env.setParameters(envParams);
+
+        env.noteOn();
         
     }
     //--------------------------------------------------------------------------
@@ -70,6 +82,8 @@ public:
     {
         clearCurrentNote();
         playing = false;
+
+        env.noteOff();
     }
     
     //--------------------------------------------------------------------------
@@ -92,12 +106,13 @@ public:
                 // your sample-by-sample DSP code here!
                 // An example white noise generater as a placeholder - replace with your own code
                 float outputSample = sinOsc.process(); 
+                float envValue = env.getNextSample();
                 
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2);
+                    outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2 * envValue);
                 }
             }
         }
@@ -128,4 +143,6 @@ private:
     juce::Random random;
 
     SinOsc sinOsc;
+    
+    juce::ADSR env;
 };
