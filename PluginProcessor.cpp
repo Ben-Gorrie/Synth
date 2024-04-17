@@ -19,8 +19,9 @@ SynthAudioProcessor::SynthAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+apvts(*this, nullptr, "ParamTree", createParameterLayout())
 {
     for (int i = 0; i < voiceCount; i++)
     {
@@ -28,6 +29,12 @@ SynthAudioProcessor::SynthAudioProcessor()
     }
     synth.addSound(new MySynthSound());
     synth.setNoteStealingEnabled(false);
+
+    for (int i = 0; i < synth.getNumVoices(); i++)
+    {
+        auto voice = dynamic_cast<MySynthVoice*>(synth.getVoice(i));
+        voice->setParametersFromAPVTS(apvts);
+    }
 }
 
 SynthAudioProcessor::~SynthAudioProcessor()
@@ -160,7 +167,7 @@ bool SynthAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
 {
-    return new SynthAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================

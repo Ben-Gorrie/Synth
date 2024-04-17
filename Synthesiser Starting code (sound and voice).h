@@ -42,6 +42,17 @@ class MySynthVoice : public juce::SynthesiserVoice
 public:
     MySynthVoice() {}
     //--------------------------------------------------------------------------
+
+    
+    void setParametersFromAPVTS(juce::AudioProcessorValueTreeState& apvts)
+    {
+        attackParam = apvts.getRawParameterValue("attack");    
+        decayParam = apvts.getRawParameterValue("decay");    
+        sustainParam = apvts.getRawParameterValue("sustain");    
+        releaseParam = apvts.getRawParameterValue("release");    
+    }
+
+
     /**
      What should be done when a note starts
 
@@ -60,10 +71,10 @@ public:
         env.setSampleRate(getSampleRate());
 
         juce::ADSR::Parameters envParams;
-        envParams.attack = 0.01;
-        envParams.decay = 0.25;
-        envParams.sustain = 0.2;
-        envParams.release = 2;
+        envParams.attack = *attackParam;
+        envParams.decay = *decayParam;
+        envParams.sustain = *sustainParam;
+        envParams.release = *releaseParam;
 
         env.setParameters(envParams);
 
@@ -148,4 +159,10 @@ private:
     SinOsc sinOsc;
     
     juce::ADSR env;
+
+    std::atomic<float>* attackParam;
+    std::atomic<float>* decayParam;
+    std::atomic<float>* sustainParam;
+    std::atomic<float>* releaseParam;
+
 };
