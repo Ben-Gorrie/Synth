@@ -107,6 +107,18 @@ void SynthAudioProcessor::changeProgramName (int index, const juce::String& newN
 void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate(sampleRate);
+    std::vector<std::pair<int, int>> initialState;
+    intitialState.clear();
+    initialState.push_back({3, 4});
+    initialState.push_back({4, 4});
+    initialState.push_back({5, 4});
+    initialState.push_back({7, 0});
+    initialState.push_back({7, 1});
+    initialState.push_back({7, 2});
+    initialState.push_back({9, 4});
+    initialState.push_back({10, 4});
+    initialState.push_back({11, 4});
+    toneMatrix.setInitialState(initialState, sampleRate);
 }
 
 void SynthAudioProcessor::releaseResources()
@@ -170,6 +182,16 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     float* mixRight = mixBuffer.getWritePointer(1);
 
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+
+
+    float* left = buffer.getWritePointer(0);
+    float* right = buffer.getWritePointer(1);
+
+    for (int i = 0; i < numSamples; i++)
+    {
+        left[i] = 
+    }
+    
     
 }
 
