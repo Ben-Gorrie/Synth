@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Synthesiser Starting code (sound and voice).h"
 
 //==============================================================================
 /**
@@ -56,4 +57,5 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
+    juce::Synthesiser synth;
 };

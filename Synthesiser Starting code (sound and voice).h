@@ -13,7 +13,7 @@
 // ===========================
 // ===========================
 // SOUND
-class YourSynthSound : public juce::SynthesiserSound
+class MySynthSound : public juce::SynthesiserSound
 {
 public:
     bool appliesToNote      (int) override      { return true; }
@@ -29,17 +29,17 @@ public:
 // Synthesiser Voice - your synth code goes in here
 
 /*!
- @class YourSynthVoice
+ @class MySynthVoice
  @abstract struct defining the DSP associated with a specific voice.
- @discussion multiple YourSynthVoice objects will be created by the Synthesiser so that it can be played polyphicially
+ @discussion multiple MySynthVoice objects will be created by the Synthesiser so that it can be played polyphicially
  
  @namespace none
  @updated 2019-06-18
  */
-class YourSynthVoice : public juce::SynthesiserVoice
+class MySynthVoice : public juce::SynthesiserVoice
 {
 public:
-    YourSynthVoice() {}
+    MySynthVoice() {}
     //--------------------------------------------------------------------------
     /**
      What should be done when a note starts
@@ -107,11 +107,11 @@ public:
      Can this voice play a sound. I wouldn't worry about this for the time being
 
      @param sound a juce::SynthesiserSound* base class pointer
-     @return sound cast as a pointer to an instance of YourSynthSound
+     @return sound cast as a pointer to an instance of MySynthSound
      */
     bool canPlaySound (juce::SynthesiserSound* sound) override
     {
-        return dynamic_cast<YourSynthSound*> (sound) != nullptr;
+        return dynamic_cast<MySynthSound*> (sound) != nullptr;
     }
     //--------------------------------------------------------------------------
 private:
