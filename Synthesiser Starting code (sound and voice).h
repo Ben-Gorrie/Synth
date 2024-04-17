@@ -9,6 +9,7 @@
 */
 
 #pragma once
+#include "Oscillators.h"
 
 // ===========================
 // ===========================
@@ -52,6 +53,9 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
         playing = true;
+        sinOsc.setSampleRate(getSampleRate());
+        float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+        sinOsc.setFrequency(freq);
         
     }
     //--------------------------------------------------------------------------
@@ -87,13 +91,13 @@ public:
             {
                 // your sample-by-sample DSP code here!
                 // An example white noise generater as a placeholder - replace with your own code
-                float currentSample = random.nextFloat()*2 - 1.0;
+                float outputSample = sinOsc.process(); 
                 
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, currentSample * 0.2);
+                    outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2);
                 }
             }
         }
@@ -122,4 +126,6 @@ private:
 
     /// a random object for use in our test noise function
     juce::Random random;
+
+    SinOsc sinOsc;
 };
