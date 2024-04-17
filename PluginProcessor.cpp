@@ -156,7 +156,21 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    // Store the number of samples 
+    int numSamples = buffer.getNumSamples();
+
+    // temp buffer for oscillators that get reverb applied to them. Stereo is assumed
+    juce::AudioBuffer<float> reverbBuffer(2, numSamples);
+    float* reverbLeft = reverbBuffer.getWritePointer(0);
+    float* reverbRight = reverbBuffer.getWritePointer(1);
+
+    // buffer for mixed output, combining reverb and no reverb 
+    juce::AudioBuffer<float> mixBuffer(2, numSamples);
+    float* mixLeft = mixBuffer.getWritePointer(0);
+    float* mixRight = mixBuffer.getWritePointer(1);
+
+    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+    
 }
 
 //==============================================================================
@@ -174,10 +188,8 @@ juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
 void SynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // You could do that either as raw data, or use the XML or ValueTree classes as intermediaries to make it easy to save and load complex data.
 }
-
 void SynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,

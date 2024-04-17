@@ -1,6 +1,7 @@
-class GameOfLife {
+class GameOfLife 
+{
 public:
-    GameOfLife(int width = 20, int height = 20) : width(width), height(height) {
+    GameOfLife(int width = 16, int height = 8) : width(width), height(height) {
         grid.resize(width * height);
     }
 
@@ -17,7 +18,30 @@ public:
         grid.swap(newGrid);
     }
 
-    // Additional methods here for setting initial conditions, getting grid state, etc.
+    // Set initial state
+    void setInitialState(const std::vector<std::pair<int, int>>& liveCells) {
+        for (const auto& cell : liveCells) {
+            if (cell.first >= 0 && cell.first < width && cell.second >= 0 && cell.second < height) {
+                grid[cell.second * width + cell.first] = true;
+            }
+        }
+    }
+
+
+    std::vector<bool> getGrid()
+    {
+        return grid;
+    }
+
+    int getWidth()
+    {
+        return width;
+    }
+
+    int getHeight()
+    {
+        return height;
+    }   
 
 private:
     int width, height;
