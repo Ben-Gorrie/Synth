@@ -83,7 +83,7 @@ public:
         if (playing) // check to see if this voice should be playing
         {
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
-            for (int sampleIndex = startSample;   sampleIndex < (startSample+numSamples);   sampleIndex++)
+            for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
                 // your sample-by-sample DSP code here!
                 // An example white noise generater as a placeholder - replace with your own code
@@ -93,7 +93,7 @@ public:
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample (chan, sampleIndex, currentSample * 0.2);
+                    outputBuffer.addSample(chan, sampleIndex, currentSample * 0.2);
                 }
             }
         }
