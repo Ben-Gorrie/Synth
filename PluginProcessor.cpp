@@ -22,6 +22,11 @@ SynthAudioProcessor::SynthAudioProcessor()
                        )
 #endif
 {
+    for (int i = 0; i < voiceCount; i++)
+    {
+        synth.addVoice(new MySynthVoice());
+    }
+    synth.addSound(new MySynthSound());
 }
 
 SynthAudioProcessor::~SynthAudioProcessor()
