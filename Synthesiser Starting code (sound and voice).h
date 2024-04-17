@@ -63,7 +63,7 @@ public:
         envParams.attack = 0.01;
         envParams.decay = 0.25;
         envParams.sustain = 0.2;
-        envParams.release = 1;
+        envParams.release = 2;
 
         env.setParameters(envParams);
 
@@ -80,9 +80,6 @@ public:
      */
     void stopNote(float /*velocity*/, bool allowTailOff) override
     {
-        clearCurrentNote();
-        playing = false;
-
         env.noteOff();
     }
     
@@ -113,6 +110,12 @@ public:
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
                     outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2 * envValue);
+                }
+
+                if (!env.isActive())
+                {
+                    playing = false;
+                    clearCurrentNote();
                 }
             }
         }

@@ -27,6 +27,7 @@ SynthAudioProcessor::SynthAudioProcessor()
         synth.addVoice(new MySynthVoice());
     }
     synth.addSound(new MySynthSound());
+    synth.setNoteStealingEnabled(false);
 }
 
 SynthAudioProcessor::~SynthAudioProcessor()
