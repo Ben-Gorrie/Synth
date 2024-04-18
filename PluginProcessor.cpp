@@ -123,6 +123,14 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         auto voice = dynamic_cast<MySynthVoice*>(synth.getVoice(i));
         voice->setInitialState(initialState, sampleRate);
     }
+
+
+    juce::File logFile("~/logfile.txt");
+    logFile.deleteFile(); // Clear the log file at startup
+    juce::Logger::setCurrentLogger(new juce::FileLogger(logFile, "Log Header", 0));
+
+    juce::Logger::writeToLog("preparing to play");
+
 }
 
 void SynthAudioProcessor::releaseResources()
