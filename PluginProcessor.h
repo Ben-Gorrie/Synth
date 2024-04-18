@@ -74,7 +74,7 @@ private:
     }
 
     ToneMatrix toneMatrix;
-    juce::Random random;
-    bool playing = true;
 
+    juce::Random random;
+    bool checkIfAnyOtherKeyIsPressed(const juce::MidiBuffer& midiMessages);
 };

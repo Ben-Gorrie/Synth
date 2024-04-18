@@ -152,8 +152,6 @@ private:
     /// Should the voice be playing?
     bool playing = false;
 
-    /// a random object for use in our test noise function
-    juce::Random random;
 
     SinOsc sinOsc;
     

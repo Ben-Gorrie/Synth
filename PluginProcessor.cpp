@@ -170,36 +170,24 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
-    float* left = buffer.getWritePointer(0);
+    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
 
-    // Buffer for the synth to act upon 
-    juce::AudioBuffer<float> synthBuffer(2, numSamples);
-    
-
-    // buffer for the combination of the synth and elements outside it 
-    juce::AudioBuffer<float> mixBuffer(2, numSamples);
-    float* mixLeft = mixBuffer.getWritePointer(0);
-    float* mixRight = mixBuffer.getWritePointer(1);
-
-    synth.renderNextBlock(synthBuffer, midiMessages, 0, numSamples);
-
-    float* synthLeft = synthBuffer.getWritePointer(0);
-    float* synthRight = synthBuffer.getWritePointer(1);
-
+    bool isAnyKeyPressed = false;
     for (const auto metadata : midiMessages)
     {
-        const auto msg = metadata.getMessage();    
-        if (playing)
+        const auto msg = metadata.getMessage();
+        if (msg.isNoteOn()) isAnyKeyPressed = true;
+        if (msg.isNoteOff()) isAnyKeyPressed = checkIfAnyOtherKeyIsPressed(midiMessages);
+    }
+
+
+    if (isAnyKeyPressed)
+    {
+        for (int i = 0; i < numSamples; i++)
         {
-            for (int i = 0; i < numSamples; i++)
-            {
-                left[i] = random.nextFloat() * 0.3;
-                //mixRight[i] = random.nextFloat() * 0.3;
-            }
-        }
-        if (msg.isNoteOff())
-        {
-            playing = false;
+            float randomSample = random.nextFloat();
+            buffer.addSample(0, i, randomSample); 
+            buffer.addSample(1, i, randomSample); 
         }
     }
     //toneMatrix.process(buffer, midiMessages);
@@ -217,7 +205,61 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         buffer.copyFrom(1, 0, mixBuffer, 1, 0, numSamples);
     }*/
 
+    // Prepare a buffer for the synth
+    /*juce::AudioBuffer<float> synthBuffer(2, numSamples);
+    synth.renderNextBlock(synthBuffer, midiMessages, 0, numSamples);
+
+    // Initialize mix buffer to zero for summing
+    buffer.clear();
+
+    // Check if any key is pressed
+    bool isAnyKeyPressed = false;
+    for (const auto metadata : midiMessages)
+    {
+        const auto msg = metadata.getMessage();
+        if (msg.isNoteOn()) isAnyKeyPressed = true;
+        if (msg.isNoteOff()) isAnyKeyPressed = checkIfAnyOtherKeyIsPressed(midiMessages);
+    }
+
+    // Generate white noise if any key is pressed
+    juce::Random random;
+    if (isAnyKeyPressed)
+    {
+        for (int i = 0; i < numSamples; i++)
+        {
+            float noiseSample = random.nextFloat() * 0.3f; // Adjust level as needed
+            buffer.addSample(0, i, noiseSample);
+            buffer.addSample(1, i, noiseSample);
+        }
+    }
+
+    // Mix the synth buffer with the output buffer
+    for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        auto* channelData = buffer.getWritePointer(channel);
+        auto* synthData = synthBuffer.getReadPointer(channel);
+        for (int i = 0; i < numSamples; ++i)
+        {
+            channelData[i] += synthData[i]; // Mix synth output
+        }
+        buffer.copyFrom(channel, 0, channelData, 0, 0, numSamples);
+    }*/
 }
+
+
+bool SynthAudioProcessor::checkIfAnyOtherKeyIsPressed(const juce::MidiBuffer& midiMessages)
+{
+    for (const auto metadata : midiMessages)
+    {
+        const auto msg = metadata.getMessage();
+        if (msg.isNoteOn())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 //==============================================================================
 bool SynthAudioProcessor::hasEditor() const
