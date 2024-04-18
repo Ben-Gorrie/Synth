@@ -108,7 +108,7 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate(sampleRate);
     std::vector<std::pair<int, int>> initialState;
-    intitialState.clear();
+    initialState.clear();
     initialState.push_back({3, 4});
     initialState.push_back({4, 4});
     initialState.push_back({5, 4});
@@ -170,29 +170,53 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
+    float* left = buffer.getWritePointer(0);
 
-    // temp buffer for oscillators that get reverb applied to them. Stereo is assumed
-    juce::AudioBuffer<float> reverbBuffer(2, numSamples);
-    float* reverbLeft = reverbBuffer.getWritePointer(0);
-    float* reverbRight = reverbBuffer.getWritePointer(1);
+    // Buffer for the synth to act upon 
+    juce::AudioBuffer<float> synthBuffer(2, numSamples);
+    
 
-    // buffer for mixed output, combining reverb and no reverb 
+    // buffer for the combination of the synth and elements outside it 
     juce::AudioBuffer<float> mixBuffer(2, numSamples);
     float* mixLeft = mixBuffer.getWritePointer(0);
     float* mixRight = mixBuffer.getWritePointer(1);
 
-    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+    synth.renderNextBlock(synthBuffer, midiMessages, 0, numSamples);
 
+    float* synthLeft = synthBuffer.getWritePointer(0);
+    float* synthRight = synthBuffer.getWritePointer(1);
 
-    float* left = buffer.getWritePointer(0);
-    float* right = buffer.getWritePointer(1);
-
-    for (int i = 0; i < numSamples; i++)
+    for (const auto metadata : midiMessages)
     {
-        left[i] = 
+        const auto msg = metadata.getMessage();    
+        if (playing)
+        {
+            for (int i = 0; i < numSamples; i++)
+            {
+                left[i] = random.nextFloat() * 0.3;
+                //mixRight[i] = random.nextFloat() * 0.3;
+            }
+        }
+        if (msg.isNoteOff())
+        {
+            playing = false;
+        }
     }
-    
-    
+    //toneMatrix.process(buffer, midiMessages);
+
+    // Combine samples
+    /*for (int i = 0; i < numSamples; i++)
+    {
+        // Mix samples and store in mixBuffer 
+        mixLeft[i] = (mixLeft[i] + synthLeft[i]) / 2.0f;
+        mixRight[i] = (mixRight[i] + synthRight[i]) / 2.0f;
+
+
+        // Copy final signal to acutal output buffer
+        buffer.copyFrom(0, 0, mixBuffer, 0, 0, numSamples);
+        buffer.copyFrom(1, 0, mixBuffer, 1, 0, numSamples);
+    }*/
+
 }
 
 //==============================================================================

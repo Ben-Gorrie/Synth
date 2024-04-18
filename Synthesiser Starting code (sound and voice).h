@@ -112,7 +112,6 @@ public:
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
                 // your sample-by-sample DSP code here!
-                // An example white noise generater as a placeholder - replace with your own code
                 float outputSample = sinOsc.process(); 
                 float envValue = env.getNextSample();
                 

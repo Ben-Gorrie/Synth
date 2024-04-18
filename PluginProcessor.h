@@ -74,5 +74,7 @@ private:
     }
 
     ToneMatrix toneMatrix;
+    juce::Random random;
+    bool playing = true;
 
 };
