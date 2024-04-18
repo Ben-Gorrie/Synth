@@ -118,7 +118,11 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     initialState.push_back({9, 4});
     initialState.push_back({10, 4});
     initialState.push_back({11, 4});
-    toneMatrix.setInitialState(initialState, sampleRate);
+    for (int i = 0; i < synth.getNumVoices(); i++)
+    {
+        auto voice = dynamic_cast<MySynthVoice*>(synth.getVoice(i));
+        voice->setInitialState(initialState, sampleRate);
+    }
 }
 
 void SynthAudioProcessor::releaseResources()
@@ -172,7 +176,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     int numSamples = buffer.getNumSamples();
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
 
-    bool isAnyKeyPressed = false;
+    /*bool isAnyKeyPressed = false;
     for (const auto metadata : midiMessages)
     {
         const auto msg = metadata.getMessage();
@@ -189,7 +193,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             buffer.addSample(0, i, randomSample); 
             buffer.addSample(1, i, randomSample); 
         }
-    }
+    }*/
     //toneMatrix.process(buffer, midiMessages);
 
     // Combine samples
@@ -244,20 +248,6 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         }
         buffer.copyFrom(channel, 0, channelData, 0, 0, numSamples);
     }*/
-}
-
-
-bool SynthAudioProcessor::checkIfAnyOtherKeyIsPressed(const juce::MidiBuffer& midiMessages)
-{
-    for (const auto metadata : midiMessages)
-    {
-        const auto msg = metadata.getMessage();
-        if (msg.isNoteOn())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 

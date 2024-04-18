@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "Synthesiser Starting code (sound and voice).h"
-#include "ToneMatrix.h"
 
 //==============================================================================
 /**
@@ -72,8 +71,6 @@ private:
 
         return layout;
     }
-
-    ToneMatrix toneMatrix;
 
     juce::Random random;
     bool checkIfAnyOtherKeyIsPressed(const juce::MidiBuffer& midiMessages);

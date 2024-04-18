@@ -10,6 +10,7 @@
 
 #pragma once
 #include "Oscillators.h"
+#include "ToneMatrix.h"
 
 // ===========================
 // ===========================
@@ -113,23 +114,31 @@ public:
             {
                 // your sample-by-sample DSP code here!
                 float outputSample = sinOsc.process(); 
+                float toneMatrixSample = toneMatrix.process();
                 float envValue = env.getNextSample();
                 
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2 * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, (outputSample + toneMatrixSample) * 0.2 * envValue);
                 }
 
                 if (!env.isActive())
                 {
+                    toneMatrix.incrementColumnAndWrap();
                     playing = false;
                     clearCurrentNote();
                 }
             }
         }
     }
+
+    void setInitialState(const std::vector<std::pair<int, int>>& liveCells, int sampleRate)
+    {
+        toneMatrix.setInitialState(liveCells, sampleRate);
+    }
+
     //--------------------------------------------------------------------------
     void pitchWheelMoved(int) override {}
     //--------------------------------------------------------------------------
@@ -161,5 +170,7 @@ private:
     std::atomic<float>* decayParam;
     std::atomic<float>* sustainParam;
     std::atomic<float>* releaseParam;
+
+    ToneMatrix toneMatrix;
 
 };

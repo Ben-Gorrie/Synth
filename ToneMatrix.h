@@ -25,12 +25,12 @@ public:
     void setInitialState(const std::vector<std::pair<int, int>>& liveCells, int sampleRate)
     {
         gameOfLife.setInitialState(liveCells);
-        notesOscs.clear();
+        phasors.clear();
         for (int i = 0; i < gameOfLife.getHeight(); i++)
         {
-            SinOsc sinOsc;
-            sinOsc.setSampleRate(sampleRate);
-            notesOscs.push_back(sinOsc);
+            TriOsc triOsc;
+            triOsc.setSampleRate(sampleRate);
+            phasors.push_back(triOsc);
         }
     }
 
@@ -44,52 +44,54 @@ public:
         std::vector<int> midiNotesToPlay = checkColumn(columnIndex);
         if (midiNotesToPlay.empty())
         {
-            for (auto& osc : notesOscs)
+            for (auto& osc : phasors)
             {
                 osc.setFrequency(0);
             }
         }
         else 
         {
-            for (auto& osc : notesOscs)
+            for (auto& osc : phasors)
             {
                 osc.setFrequency(0);
             }
 
             for (int i = 0; i < midiNotesToPlay.size(); i++)
             {
-                notesOscs[i].setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNotesToPlay[i]));
+                phasors[i].setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNotesToPlay[i]));
             }     
         }
     }
 
-    void process(juce::AudioSampleBuffer& outputBuffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples)
+    float process()
     {
-        for (const auto metadata : midiMessages)
+        processColumn(currentColumn);
+        // Store the output of all of the oscillators 
+        float sample = 0;
+
+        // Increment the sample with each oscillator
+        for (auto& osc : phasors)
         {
-            const auto msg = metadata.getMessage();    
-            if (msg.isNoteOn())
-            {
-                // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
-                for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
-                {
-                    // your sample-by-sample DSP code here!
-                    float outputSample = notesOscs[0].process(); 
-                    
-                    // for each channel, write the currentSample float to the output
-                    for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
-                    {
-                        // The output sample is scaled by 0.2 so that it is not too loud by default
-                        outputBuffer.addSample(chan, sampleIndex, outputSample * 0.2);
-                    }
-                }
-            }
+           sample += osc.process(); 
         }
+
+        // Normalise the sample and return it
+        if (!checkColumn(currentColumn).empty())
+        {
+            return sample / checkColumn(currentColumn).size();
+        }
+        else {
+            return 0;
+        }
+    }
+
+    void incrementColumnAndWrap()
+    {
+        currentColumn = (currentColumn + 1) % gameOfLife.getWidth();
     }
 
 private:
     GameOfLife gameOfLife;
-    std::vector<SinOsc> notesOscs;
+    std::vector<TriOsc> phasors;
     int currentColumn = 0;
-    bool playing = false;
 };
