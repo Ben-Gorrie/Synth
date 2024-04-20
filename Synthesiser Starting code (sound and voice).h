@@ -50,6 +50,8 @@ public:
     {
         masterVolParam = apvts.getRawParameterValue("masterVol");
 
+        lifeNoteParam = apvts.getRawParameterValue("lifeNote");
+
         attackParam = apvts.getRawParameterValue("attack");    
         decayParam = apvts.getRawParameterValue("decay");    
         sustainParam = apvts.getRawParameterValue("sustain");    
@@ -125,9 +127,14 @@ public:
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
                 // your sample-by-sample DSP code here!
+
+                float toneMatrixSample = 0;
+                if (lifeNoteParam->load() < 1)
+                {
+                    toneMatrixSample = toneMatrix.process();
+                }
                 
                 float synthMixSample = phasors.process(); 
-                float toneMatrixSample = toneMatrix.process();
                 float envValue = env.getNextSample();
                 
                 // for each channel, write the currentSample float to the output
@@ -179,6 +186,8 @@ private:
     juce::ADSR env;
 
     std::atomic<float>* masterVolParam;
+
+    std::atomic<float>* lifeNoteParam;
 
     std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;

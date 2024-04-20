@@ -76,6 +76,8 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("squareProp", 1), "Square wave Proportion", 0, 1.0, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sawProp", 1), "Sawtooth wave Proportion", 0, 1.0, 0));
 
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeNote", 1), "Game of Life note toggle", juce::StringArray({"On", "Off"}), 0));
+
         return layout;
     }
 
