@@ -124,6 +124,19 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
         voice->setInitialState(initialState, sampleRate);
     }
 
+    reverb.reset();
+    reverb.setSampleRate(sampleRate);
+    juce::Reverb::Parameters reverbParams;
+    reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
+    reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
+    reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
+    reverbParams.width = apvts.getRawParameterValue("reverbWidth")->load();
+    reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
+    
+    // Set reverb parameters
+    reverb.setParameters(reverbParams);
+
+
 
     juce::File logFile("~/logfile.txt");
     logFile.deleteFile(); // Clear the log file at startup
@@ -183,7 +196,23 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+    
+    if (apvts.getRawParameterValue("reverbChoice")->load() == 1)
+    {
+        juce::Reverb::Parameters reverbParams;
+        reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
+        reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
+        reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
+        reverbParams.width = apvts.getRawParameterValue("reverbWidth")->load();
+        reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
+        reverb.setParameters(reverbParams);
 
+        float* left = buffer.getWritePointer(0);
+        float* right = buffer.getWritePointer(1);
+        reverb.processStereo(left, right, numSamples);
+    }
+
+   
     /*bool isAnyKeyPressed = false;
     for (const auto metadata : midiMessages)
     {

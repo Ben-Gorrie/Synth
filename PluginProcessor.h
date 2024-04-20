@@ -76,10 +76,18 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("squareProp", 1), "Square wave Proportion", 0, 1.0, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sawProp", 1), "Sawtooth wave Proportion", 0, 1.0, 0));
 
-        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeNote", 1), "Game of Life note toggle", juce::StringArray({"On", "Off"}), 0));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeNote", 1), "Game of Life note toggle", juce::StringArray({"Off", "On"}), 1));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", juce::StringArray({"Off", "On"}), 0));
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDry", 1), "Reverb Dry Level", 0, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWet", 1), "Reverb Wet Level", 0, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbRoomSize", 1), "Reverb Room Size", 0, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWidth", 1), "Reverb Width", 0, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDamping", 1), "Reverb Damping", 0, 1, 0));
 
         return layout;
     }
 
-    juce::Random random;
+    // Reverb
+    juce::Reverb reverb;
 };
