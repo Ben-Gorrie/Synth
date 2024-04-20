@@ -26,8 +26,6 @@ public:
             phasor->setSampleRate(sampleRate);
         }
 
-        juce::Logger::writeToLog("Finished setting sample rate");
-        
         phasorProportions.push_back(sinProp->load());
         phasorProportions.push_back(triProp->load());
         phasorProportions.push_back(squareProp->load());

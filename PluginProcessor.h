@@ -64,6 +64,8 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("masterVol", 1), "Master Volume", 0, 2.0, 0.2));
+
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Attack", 0.001, 4.0, 0.01));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Decay", 0.001, 4.0, 0.25));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Sustain", 0.001, 1.0, 0.5));

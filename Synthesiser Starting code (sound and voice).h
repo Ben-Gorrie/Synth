@@ -48,6 +48,8 @@ public:
     
     void setParametersFromAPVTS(juce::AudioProcessorValueTreeState& apvts)
     {
+        masterVolParam = apvts.getRawParameterValue("masterVol");
+
         attackParam = apvts.getRawParameterValue("attack");    
         decayParam = apvts.getRawParameterValue("decay");    
         sustainParam = apvts.getRawParameterValue("sustain");    
@@ -71,15 +73,11 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
 
-        juce::Logger::writeToLog("start of preparing to play note");
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
-        juce::Logger::writeToLog("preparing to initPhasors");
-
         phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam);
 
-        juce::Logger::writeToLog("finished initPhasors");
         phasors.setFrequencies(freq);
 
         env.setSampleRate(getSampleRate());
@@ -93,7 +91,6 @@ public:
         env.setParameters(envParams);
 
         env.noteOn();
-        juce::Logger::writeToLog("preparing to play note");
 
         
     }
@@ -137,7 +134,7 @@ public:
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, (synthMixSample + toneMatrixSample) * 0.2 * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, (synthMixSample + toneMatrixSample) * masterVolParam->load() * envValue);
                 }
 
                 if (!env.isActive())
@@ -180,6 +177,8 @@ private:
     AllPhasorsVec phasors;
 
     juce::ADSR env;
+
+    std::atomic<float>* masterVolParam;
 
     std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;
