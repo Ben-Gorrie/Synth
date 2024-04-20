@@ -28,7 +28,7 @@ apvts(*this, nullptr, "ParamTree", createParameterLayout())
         synth.addVoice(new MySynthVoice());
     }
     synth.addSound(new MySynthSound());
-    synth.setNoteStealingEnabled(false);
+    synth.setNoteStealingEnabled(true);
 
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
@@ -136,7 +136,12 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Set reverb parameters
     reverb.setParameters(reverbParams);
 
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
 
+    chorus.prepare(spec);
 
     juce::File logFile("~/logfile.txt");
     logFile.deleteFile(); // Clear the log file at startup
@@ -196,6 +201,15 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    chorus.setRate(apvts.getRawParameterValue("rate")->load());
+    chorus.setDepth(apvts.getRawParameterValue("depth")->load());
+    chorus.setMix(apvts.getRawParameterValue("mix")->load());
+
+    chorus.process(context);
     
     if (apvts.getRawParameterValue("reverbChoice")->load() == 1)
     {
@@ -211,80 +225,6 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         float* right = buffer.getWritePointer(1);
         reverb.processStereo(left, right, numSamples);
     }
-
-   
-    /*bool isAnyKeyPressed = false;
-    for (const auto metadata : midiMessages)
-    {
-        const auto msg = metadata.getMessage();
-        if (msg.isNoteOn()) isAnyKeyPressed = true;
-        if (msg.isNoteOff()) isAnyKeyPressed = checkIfAnyOtherKeyIsPressed(midiMessages);
-    }
-
-
-    if (isAnyKeyPressed)
-    {
-        for (int i = 0; i < numSamples; i++)
-        {
-            float randomSample = random.nextFloat();
-            buffer.addSample(0, i, randomSample); 
-            buffer.addSample(1, i, randomSample); 
-        }
-    }*/
-    //toneMatrix.process(buffer, midiMessages);
-
-    // Combine samples
-    /*for (int i = 0; i < numSamples; i++)
-    {
-        // Mix samples and store in mixBuffer 
-        mixLeft[i] = (mixLeft[i] + synthLeft[i]) / 2.0f;
-        mixRight[i] = (mixRight[i] + synthRight[i]) / 2.0f;
-
-
-        // Copy final signal to acutal output buffer
-        buffer.copyFrom(0, 0, mixBuffer, 0, 0, numSamples);
-        buffer.copyFrom(1, 0, mixBuffer, 1, 0, numSamples);
-    }*/
-
-    // Prepare a buffer for the synth
-    /*juce::AudioBuffer<float> synthBuffer(2, numSamples);
-    synth.renderNextBlock(synthBuffer, midiMessages, 0, numSamples);
-
-    // Initialize mix buffer to zero for summing
-    buffer.clear();
-
-    // Check if any key is pressed
-    bool isAnyKeyPressed = false;
-    for (const auto metadata : midiMessages)
-    {
-        const auto msg = metadata.getMessage();
-        if (msg.isNoteOn()) isAnyKeyPressed = true;
-        if (msg.isNoteOff()) isAnyKeyPressed = checkIfAnyOtherKeyIsPressed(midiMessages);
-    }
-
-    // Generate white noise if any key is pressed
-    juce::Random random;
-    if (isAnyKeyPressed)
-    {
-        for (int i = 0; i < numSamples; i++)
-        {
-            float noiseSample = random.nextFloat() * 0.3f; // Adjust level as needed
-            buffer.addSample(0, i, noiseSample);
-            buffer.addSample(1, i, noiseSample);
-        }
-    }
-
-    // Mix the synth buffer with the output buffer
-    for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
-    {
-        auto* channelData = buffer.getWritePointer(channel);
-        auto* synthData = synthBuffer.getReadPointer(channel);
-        for (int i = 0; i < numSamples; ++i)
-        {
-            channelData[i] += synthData[i]; // Mix synth output
-        }
-        buffer.copyFrom(channel, 0, channelData, 0, 0, numSamples);
-    }*/
 }
 
 

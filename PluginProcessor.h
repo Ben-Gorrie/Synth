@@ -85,9 +85,19 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWidth", 1), "Reverb Width", 0, 1, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDamping", 1), "Reverb Damping", 0, 1, 0));
 
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("delayTime", 1), "Delay Time", 0, 3, 0.3));
+
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>("rate", "Rate", 0.1f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("depth", "Depth", 0.1f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0f, 1.0f, 0.5f));
+
         return layout;
     }
 
     // Reverb
     juce::Reverb reverb;
+
+    // Chorus
+    juce::dsp::Chorus<float> chorus;
 };

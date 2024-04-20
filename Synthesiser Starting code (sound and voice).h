@@ -129,7 +129,7 @@ public:
                 // your sample-by-sample DSP code here!
 
                 float toneMatrixSample = 0;
-                if (lifeNoteParam->load() < 1)
+                if (lifeNoteParam->load() == 1)
                 {
                     toneMatrixSample = toneMatrix.process();
                 }
