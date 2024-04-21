@@ -88,9 +88,9 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("delayTime", 1), "Delay Time", 0, 3, 0.3));
 
 
-        layout.add(std::make_unique<juce::AudioParameterFloat>("rate", "Rate", 0.1f, 10.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>("depth", "Depth", 0.1f, 1.0f, 0.5f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>("mix", "Mix", 0.0f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("rate", 1), "Rate", 0.1f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depth", 1), "Depth", 0.1f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1),"Mix", 0.0f, 1.0f, 0.5f));
 
         return layout;
     }
