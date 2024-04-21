@@ -25,14 +25,14 @@ apvts(*this, nullptr, "ParamTree", createParameterLayout())
 {
     for (int i = 0; i < voiceCount; i++)
     {
-        synth.addVoice(new MySynthVoice());
+        synth.addVoice(new LifeSynthVoice());
     }
-    synth.addSound(new MySynthSound());
+    synth.addSound(new LifeSynthSound());
     synth.setNoteStealingEnabled(true);
 
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
-        auto voice = dynamic_cast<MySynthVoice*>(synth.getVoice(i));
+        auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
         voice->setParametersFromAPVTS(apvts);
     }
 }
@@ -106,7 +106,10 @@ void SynthAudioProcessor::changeProgramName (int index, const juce::String& newN
 //==============================================================================
 void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    // Set the sample rate for the synth
     synth.setCurrentPlaybackSampleRate(sampleRate);
+
+    // Initialise the game of life state for each voice
     std::vector<std::pair<int, int>> initialState;
     initialState.clear();
     initialState.push_back({3, 4});
@@ -120,10 +123,11 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     initialState.push_back({11, 4});
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
-        auto voice = dynamic_cast<MySynthVoice*>(synth.getVoice(i));
+        auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
         voice->setInitialState(initialState, sampleRate);
     }
 
+    // Reset the reverb and set the sample rate
     reverb.reset();
     reverb.setSampleRate(sampleRate);
     juce::Reverb::Parameters reverbParams;
@@ -197,19 +201,29 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
+
+    // Process the buffer with the synth
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
 
+    // Create an AudioBlock from the given audio buffer. This wraps the buffer in a DSP-friendly format.
     juce::dsp::AudioBlock<float> block(buffer);
+
+    // Create a processing context for replacing the audio in the block with processed audio.
+    // This context is used to apply DSP effects directly to the audio block.
     juce::dsp::ProcessContextReplacing<float> context(block);
 
+    // Change chorus parameters
     chorus.setRate(apvts.getRawParameterValue("rate")->load());
     chorus.setDepth(apvts.getRawParameterValue("depth")->load());
     chorus.setMix(apvts.getRawParameterValue("mix")->load());
 
+    // Process the audio block with the updated chorus effect parameters.
     chorus.process(context);
     
+    // Check if the reverb is on or off. If it is off, there is no point changing the parameters
     if (apvts.getRawParameterValue("reverbChoice")->load() == 1)
     {
+        // Change the reverb parameters if the reverb is turned on
         juce::Reverb::Parameters reverbParams;
         reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
         reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
@@ -218,6 +232,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
         reverb.setParameters(reverbParams);
 
+        // Apply the reverb to the left and right channel
         float* left = buffer.getWritePointer(0);
         float* right = buffer.getWritePointer(1);
         reverb.processStereo(left, right, numSamples);

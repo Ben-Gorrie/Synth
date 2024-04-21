@@ -16,7 +16,7 @@
 // ===========================
 // ===========================
 // SOUND
-class MySynthSound : public juce::SynthesiserSound
+class LifeSynthSound : public juce::SynthesiserSound
 {
 public:
     bool appliesToNote      (int) override      { return true; }
@@ -32,24 +32,22 @@ public:
 // Synthesiser Voice - your synth code goes in here
 
 /*!
- @class MySynthVoice
+ @class LifeSynthVoice
  @abstract struct defining the DSP associated with a specific voice.
- @discussion multiple MySynthVoice objects will be created by the Synthesiser so that it can be played polyphicially
+ @discussion multiple LifeSynthVoice objects will be created by the Synthesiser so that it can be played polyphicially
  
  @namespace none
  @updated 2019-06-18
  */
-class MySynthVoice : public juce::SynthesiserVoice
+class LifeSynthVoice : public juce::SynthesiserVoice
 {
 public:
-    MySynthVoice() {}
+    LifeSynthVoice() {}
     //--------------------------------------------------------------------------
 
     
     void setParametersFromAPVTS(juce::AudioProcessorValueTreeState& apvts)
     {
-        masterVolParam = apvts.getRawParameterValue("masterVol");
-
         lifeNoteParam = apvts.getRawParameterValue("lifeNote");
 
         attackParam = apvts.getRawParameterValue("attack");    
@@ -141,7 +139,7 @@ public:
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
                     // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, (synthMixSample + toneMatrixSample) * masterVolParam->load() * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, (synthMixSample + toneMatrixSample) * envValue);
                 }
 
                 if (!env.isActive())
@@ -168,11 +166,11 @@ public:
      Can this voice play a sound. I wouldn't worry about this for the time being
 
      @param sound a juce::SynthesiserSound* base class pointer
-     @return sound cast as a pointer to an instance of MySynthSound
+     @return sound cast as a pointer to an instance of LifeSynthSound
      */
     bool canPlaySound (juce::SynthesiserSound* sound) override
     {
-        return dynamic_cast<MySynthSound*> (sound) != nullptr;
+        return dynamic_cast<LifeSynthSound*> (sound) != nullptr;
     }
     //--------------------------------------------------------------------------
 private:
@@ -184,8 +182,6 @@ private:
     AllPhasorsVec phasors;
 
     juce::ADSR env;
-
-    std::atomic<float>* masterVolParam;
 
     std::atomic<float>* lifeNoteParam;
 
