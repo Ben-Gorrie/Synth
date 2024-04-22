@@ -30,8 +30,6 @@ public:
         phasorProportions.push_back(triProp->load());
         phasorProportions.push_back(squareProp->load());
         phasorProportions.push_back(sawProp->load());
-
-
     }
 
     void setFrequencies(float frequency)
@@ -49,6 +47,11 @@ public:
         for (int i = 0; i < phasorProportions.size(); i++)
         {
             sumProportion += phasorProportions[i];
+        }
+
+        if (sumProportion == 0)
+        {
+            return 0;
         }
 
         for (int i = 0; i < phasors.size(); i++)

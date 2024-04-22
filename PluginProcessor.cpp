@@ -197,7 +197,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, buffer.getNumSamples());
 
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
@@ -238,7 +238,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         reverb.processStereo(left, right, numSamples);
     }
     
-
+/*
     // Assuming 'synth' is your synthesizer object and it is a JUCE Synthesiser
     int activeVoices = 0;
     for (int i = 0; i < synth.getNumVoices(); ++i) {
@@ -258,6 +258,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             }
         }
     }
+    */
 
 }
 

@@ -83,16 +83,14 @@ public:
         env.setSampleRate(getSampleRate());
 
         juce::ADSR::Parameters envParams;
-        envParams.attack = *attackParam;
-        envParams.decay = *decayParam;
-        envParams.sustain = *sustainParam;
-        envParams.release = *releaseParam;
+        envParams.attack = attackParam->load();
+        envParams.decay = decayParam->load();
+        envParams.sustain = sustainParam->load();
+        envParams.release = releaseParam->load();
 
         env.setParameters(envParams);
 
         env.noteOn();
-
-        
     }
     //--------------------------------------------------------------------------
     /// Called when a MIDI noteOff message is received
@@ -124,12 +122,13 @@ public:
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
-                // your sample-by-sample DSP code here!
 
                 float toneMatrixSample = 0;
+                int toneMatrixVolumeBalancer = 1;
                 if (lifeNoteParam->load() == 1)
                 {
                     toneMatrixSample = toneMatrix.process();
+                    toneMatrixVolumeBalancer++;
                 }
                 
                 float synthMixSample = phasors.process(); 
@@ -138,7 +137,7 @@ public:
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
-                    outputBuffer.addSample(chan, sampleIndex, ((synthMixSample + toneMatrixSample) / 2) * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, ((synthMixSample + toneMatrixSample) / toneMatrixVolumeBalancer) * envValue);
                 }
 
                 if (!env.isActive())
