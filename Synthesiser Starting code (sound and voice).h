@@ -138,8 +138,7 @@ public:
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
                 {
-                    // The output sample is scaled by 0.2 so that it is not too loud by default
-                    outputBuffer.addSample(chan, sampleIndex, (synthMixSample + toneMatrixSample) * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, ((synthMixSample + toneMatrixSample) / 2) * envValue);
                 }
 
                 if (!env.isActive())
