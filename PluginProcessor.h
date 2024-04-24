@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "Synthesiser Starting code (sound and voice).h"
+#include "Panning.h"
 
 //==============================================================================
 /**
@@ -98,6 +99,12 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depth", 1), "Depth", 0.1f, 1.0f, 0.5f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1),"Mix", 0.0f, 1.0f, 0.5f));
 
+        // Parameters for panning
+        // Toggles panning on or off
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("panningChoice", 1), "Panning toggle", juce::StringArray({"Off", "On"}), 0));
+        // Sets panning rate
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("panningRate", 1), "Panning Rate", 0.01f, 5.0f, 0.1f));
+
         return layout;
     }
 
@@ -106,4 +113,7 @@ private:
 
     // Chorus
     juce::dsp::Chorus<float> chorus;
+
+    // Panning
+    Panning panning;
 };

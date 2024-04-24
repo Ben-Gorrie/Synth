@@ -147,6 +147,8 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     chorus.prepare(spec);
 
+    panning.setSampleRate(sampleRate);
+
     juce::File logFile("~/logfile.txt");
     logFile.deleteFile(); // Clear the log file at startup
     juce::Logger::setCurrentLogger(new juce::FileLogger(logFile, "Log Header", 0));
@@ -236,6 +238,22 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         float* left = buffer.getWritePointer(0);
         float* right = buffer.getWritePointer(1);
         reverb.processStereo(left, right, numSamples);
+    }
+
+    if (apvts.getRawParameterValue("panningChoice")->load() == 1)
+    {
+
+        float* left = buffer.getWritePointer(0);
+        float* right = buffer.getWritePointer(1);
+
+        panning.setFrequency(apvts.getRawParameterValue("panningRate")->load());
+        for (int i = 0; i < numSamples; i++)
+        {
+            float sample = buffer.getSample(0, i);
+            std::vector<float> samples = panning.process(sample);
+            left[i] = samples[0];
+            right[i] = samples[1];
+        }
     }
     
 /*
