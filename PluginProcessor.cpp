@@ -255,29 +255,6 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             right[i] = samples[1];
         }
     }
-    
-/*
-    // Assuming 'synth' is your synthesizer object and it is a JUCE Synthesiser
-    int activeVoices = 0;
-    for (int i = 0; i < synth.getNumVoices(); ++i) {
-        if (auto* voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i))) {
-            if (voice->isVoiceActive())
-                ++activeVoices;
-        }
-    }
-
-    // Now, adjust the output levels based on the number of active voices
-    if (activeVoices > 0) {
-        float compensationGain = 1.0f / static_cast<float>(activeVoices);
-        for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
-            float* channelData = buffer.getWritePointer(channel);
-            for (int i = 0; i < numSamples; ++i) {
-                channelData[i] *= compensationGain;
-            }
-        }
-    }
-    */
-
 }
 
 

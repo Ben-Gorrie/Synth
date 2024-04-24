@@ -24,8 +24,11 @@ public:
             phase -= 1.0f;
         }
 
+
+        float modulatedPhase = phase + modulationIndex * modulationValue;
+
         // Return the phase passed through output()
-        return output(phase);
+        return output(modulatedPhase);
     }
 
     /**
@@ -86,12 +89,27 @@ public:
         return phase;  
     }
 
+    void setModulationIndex(float mi) 
+    {
+        modulationIndex = mi;
+    }
+
+    void setModulationValue(float mv)
+    {
+        modulationValue = mv;
+    }
+
+
 private:
     // Variables that store frequency, sample rate, phase and phase delta of phasor respectively
     float frequency;
     float sampleRate;
     float phase = 0.0f;
     float phaseDelta;
+
+protected:
+    float modulationIndex = 0.0f;
+    float modulationValue = 0.0f;
 };
 
 
@@ -104,9 +122,12 @@ class TriOsc : public Phasor
      *  Override the base phasor function to generate a triangular wave
      *  @param p Phase of the phasor
      */
-    float output(float p) override
+    float output(float modulatedPhase) override
     {
-        return fabsf(p - 0.5f) - 0.5f;
+        // Wrap the modulatedPhase back into the 0 to 1 range if needed.
+        modulatedPhase = modulatedPhase - floor(modulatedPhase);
+
+        return 4 * (fabsf(modulatedPhase - 0.5f) - 0.25f);
     }
 };
 
@@ -117,11 +138,12 @@ class SinOsc : public Phasor
 {
     /**
      *  Override the base phasor function to generate a sine wave
+     *  Allows for phase modulation if the variables modulationIndex and modulationValue are not 0
      *  @param p Phase of the phasor
      */
-    float output(float p) override
+    float output(float modulatedPhase) override
     {
-        return sin(p * 2.0 * M_PI);
+        return sin(modulatedPhase * 2.0 * M_PI);
     }
 };
 
@@ -135,29 +157,19 @@ public:
      *  Override the base phasor function to generate a square wave. Also tracks when the square wave has just flipped
      *  @param p Phase of the phasor
      */
-    float output(float p) override
+    float output(float modulatedPhase) override
     {
+        // Wrap the modulatedPhase back into the 0 to 1 range if needed.
+        modulatedPhase = modulatedPhase - floor(modulatedPhase);
+
         // If the phase is less than the pulsewidth return 0.5. If not, return -0.5
         float outVal = 0.5;
 
-        if (p > pulseWidth)
+        if (modulatedPhase > pulseWidth)
         {
             outVal = -0.5;
         }
-        
-        // Compare the current value with the previous value. If they are close together, the wave has not flipped. If not, set hasJustTurnedOn to true
-        if (abs(previousOutVal - outVal) < 0.001)
-        {
-            hasJustTurnedOn = false;
-        }
-        else 
-        {
-            hasJustTurnedOn = true;    
-        }
-
-        // Store the current value and return the current value
-        previousOutVal = outVal;
-        return outVal;
+       return outVal;
     }
 
     /**
@@ -169,19 +181,23 @@ public:
         pulseWidth = pw;
     }
 
-    /**
-     *  Wrapper function to determine if the wave has just flipped or not
-     *  @return Boolean which states if tehe wave has just flipped
-     */
-    bool getHasJustTurnedOn()
-    {
-        return hasJustTurnedOn;
-    }
-
 private:
-    // Variable which store pulse width of the square wave, its previous output value and whether or not it has just been turned on
+    // Variable which store pulse width of the square wave
     float pulseWidth = 0.5f;
-    float previousOutVal = 0; 
-    bool hasJustTurnedOn = false;
 };
 
+class SawOsc : public Phasor
+{
+   /**
+     *  Override the base phasor function to generate a sawtooth wave
+     *  Allows for phase modulation if the variables modulationIndex and modulationValue are not 0
+     *  @param p Phase of the phasor
+     */
+    float output(float modulatedPhase) override
+    {
+        // Wrap the modulatedPhase back into the 0 to 1 range if needed.
+        modulatedPhase = modulatedPhase - floor(modulatedPhase);
+
+        return modulatedPhase;
+    }
+};

@@ -68,11 +68,10 @@ private:
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
         // ADSR parameters for amplitude envelope
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Attack", 0.001, 4.0, 0.1));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Decay", 0.001, 4.0, 0.25));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Sustain", 0.001, 1.0, 0.5));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("release", 1), "Release", 0.001, 8.0, 1));
-
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Volume Attack", 0.001, 4.0, 0.1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Volume Decay", 0.001, 4.0, 0.25));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Volume Sustain", 0.001, 1.0, 0.5));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("release", 1), "Volume Release", 0.001, 8.0, 1));
 
         // ADSR parameters for pitch envelope
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attackPitch", 1), "Pitch Attack", 0.001, 4.0, 0.1));
@@ -105,15 +104,21 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDamping", 1), "Reverb Damping", 0, 1, 0));
 
         // Parameters for chorus
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("rate", 1), "Rate", 0.1f, 10.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depth", 1), "Depth", 0.1f, 1.0f, 0.5f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1),"Mix", 0.0f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("rate", 1), "Chorus Rate", 0.1f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("depth", 1), "Chorus Depth", 0.1f, 1.0f, 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1), "Chorus Mix", 0.0f, 1.0f, 0.5f));
 
         // Parameters for panning
         // Toggles panning on or off
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("panningChoice", 1), "Panning toggle", juce::StringArray({"Off", "On"}), 0));
         // Sets panning rate
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("panningRate", 1), "Panning Rate", 0.01f, 5.0f, 0.1f));
+
+
+        // Sets modulation index
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationIndex", 1), "Phase Modulation Index", 0.0f, 10.0f, 1.0f));
+        // Frequency that controls frequency of modulator oscillator
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 20.0f, 1.0f));
 
         return layout;
     }

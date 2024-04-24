@@ -66,6 +66,9 @@ public:
         triPropParam = apvts.getRawParameterValue("triProp");
         squarePropParam = apvts.getRawParameterValue("squareProp");
         sawPropParam = apvts.getRawParameterValue("sawProp");
+
+        phaseModIndexParam = apvts.getRawParameterValue("phaseModulationIndex");
+        phaseModFreqParam = apvts.getRawParameterValue("phaseModulationFreq");
     }
 
 
@@ -84,7 +87,7 @@ public:
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
-        phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam);
+        phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
 
         //phasors.setFrequencies(freq);
 
@@ -249,6 +252,9 @@ private:
     std::atomic<float>* sawPropParam;
 
 
+
+    std::atomic<float>* phaseModIndexParam;
+    std::atomic<float>* phaseModFreqParam;
 
     ToneMatrix toneMatrix;
 

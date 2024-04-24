@@ -12,7 +12,7 @@
 class AllPhasorsVec
 {
 public:
-    void initPhasors(float sampleRate, std::atomic<float>* sinProp, std::atomic<float>* triProp, std::atomic<float>* squareProp, std::atomic<float>* sawProp)
+    void initPhasors(float sampleRate, std::atomic<float>* sinProp, std::atomic<float>* triProp, std::atomic<float>* squareProp, std::atomic<float>* sawProp, std::atomic<float>* phaseModIndex, std::atomic<float>* phaseModFreq)
     {
         phasors.clear();
         phasorProportions.clear();
@@ -20,16 +20,20 @@ public:
         phasors.push_back(new SinOsc());
         phasors.push_back(new TriOsc());
         phasors.push_back(new SquareOsc());
-        phasors.push_back(new Phasor());
+        phasors.push_back(new SawOsc());
         for (auto& phasor : phasors)
         {
             phasor->setSampleRate(sampleRate);
+            phasor->setModulationIndex(phaseModIndex->load());
         }
 
         phasorProportions.push_back(sinProp->load());
         phasorProportions.push_back(triProp->load());
         phasorProportions.push_back(squareProp->load());
         phasorProportions.push_back(sawProp->load());
+
+        sinOscPhaseModulator.setSampleRate(sampleRate);
+        sinOscPhaseModulator.setFrequency(phaseModFreq->load());
     }
 
     void setFrequencies(float frequency)
@@ -56,6 +60,7 @@ public:
 
         for (int i = 0; i < phasors.size(); i++)
         {
+            phasors[i]->setModulationValue(sinOscPhaseModulator.process());
             rawWave += phasors[i]->process() * (phasorProportions[i] / sumProportion);
         }
         return rawWave;
@@ -65,5 +70,7 @@ private:
     std::vector<Phasor*> phasors;
 
     std::vector<float> phasorProportions;
+
+    SinOsc sinOscPhaseModulator;
 
 };
