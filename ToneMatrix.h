@@ -42,20 +42,14 @@ public:
     void processColumn(int columnIndex)
     {
         std::vector<int> midiNotesToPlay = checkColumn(columnIndex);
-        if (midiNotesToPlay.empty())
+        
+        for (auto& osc : phasors)
         {
-            for (auto& osc : phasors)
-            {
-                osc.setFrequency(0);
-            }
+            osc.setFrequency(0);
         }
-        else 
-        {
-            for (auto& osc : phasors)
-            {
-                osc.setFrequency(0);
-            }
 
+        if (!midiNotesToPlay.empty())
+        {
             for (int i = 0; i < midiNotesToPlay.size(); i++)
             {
                 phasors[i].setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNotesToPlay[i]));
@@ -87,6 +81,18 @@ public:
 
     void incrementColumnAndWrap()
     {
+        // If we are at the last column, update the board
+        //juce::Logger::writeToLog("Incrementing column");
+        if (currentColumn == gameOfLife.getWidth())
+        {
+
+
+            //juce::Logger::writeToLog("Column is at end");
+
+            //juce::Logger::writeToLog(std::to_string(currentColumn));
+            //juce::Logger::writeToLog("Updating board");
+            gameOfLife.update();
+        }
         currentColumn = (currentColumn + 1) % gameOfLife.getWidth();
     }
 

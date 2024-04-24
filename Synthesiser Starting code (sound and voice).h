@@ -147,6 +147,8 @@ public:
     {
         if (playing) // check to see if this voice should be playing
         {
+            juce::Logger::writeToLog("Playing is true");
+            juce::Logger::writeToLog(std::to_string(playing));
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
@@ -159,22 +161,12 @@ public:
                     toneMatrixVolumeBalancer++;
                 }
 
-
-                
-
                 float floatMidiNote = currentMidiNoteNumber + pitchBendRangeParam->load() * pitchEnv.getNextSample();
 
                 float frequency = 440 * pow(2, (floatMidiNote - 69) / 12);
 
                 phasors.setFrequencies(frequency);
 
-
-
-
-
-
-
-                
                 float synthMixSample = phasors.process(); 
                 float envValue = env.getNextSample();
                 
@@ -186,10 +178,15 @@ public:
 
                 if (!env.isActive())
                 {
-                    toneMatrix.incrementColumnAndWrap();
                     playing = false;
                     clearCurrentNote();
                 }
+            }
+
+            if (playing == false)
+            {
+                toneMatrix.incrementColumnAndWrap();
+                juce::Logger::writeToLog("Env finished");
             }
         }
     }
