@@ -67,11 +67,21 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
-        // ADSR parameters for envelope
+        // ADSR parameters for amplitude envelope
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Attack", 0.001, 4.0, 0.1));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Decay", 0.001, 4.0, 0.25));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Sustain", 0.001, 1.0, 0.5));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("release", 1), "Release", 0.001, 8.0, 1));
+
+
+        // ADSR parameters for pitch envelope
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attackPitch", 1), "Pitch Attack", 0.001, 4.0, 0.1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decayPitch", 1), "Pitch Decay", 0.001, 4.0, 0.25));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustainPitch", 1), "Pitch Sustain", 0.001, 1.0, 0.5));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("releasePitch", 1), "Pitch Release", 0.001, 8.0, 1));
+
+        // Pitch bending range parameter
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("pitchRange", 1), "Pitch Bending Range", 0, 50.0f, 5.0f));
 
         // Parameters which control the proportion of wave types that are played when a key is pressed
         // Example: Setting sinProp = 1, triProp = 0.3, squareProp = 0.2 and sawProp = 0 results in a sound created in the ratio 0.2:0.3:1 by square, triangle and sine waves respectively

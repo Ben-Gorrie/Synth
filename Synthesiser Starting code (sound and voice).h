@@ -55,6 +55,13 @@ public:
         sustainParam = apvts.getRawParameterValue("sustain");    
         releaseParam = apvts.getRawParameterValue("release");    
 
+        pitchAttackParam = apvts.getRawParameterValue("attackPitch");
+        pitchDecayParam = apvts.getRawParameterValue("decayPitch");    
+        pitchSustainParam = apvts.getRawParameterValue("sustainPitch");    
+        pitchReleaseParam = apvts.getRawParameterValue("releasePitch");    
+
+        pitchBendRangeParam = apvts.getRawParameterValue("pitchRange");
+
         sinPropParam = apvts.getRawParameterValue("sinProp");
         triPropParam = apvts.getRawParameterValue("triProp");
         squarePropParam = apvts.getRawParameterValue("squareProp");
@@ -73,14 +80,18 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
 
+        currentMidiNoteNumber = midiNoteNumber;
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
         phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam);
 
-        phasors.setFrequencies(freq);
+        //phasors.setFrequencies(freq);
 
         env.setSampleRate(getSampleRate());
+
+        pitchEnv.setSampleRate(getSampleRate());
+
 
         juce::ADSR::Parameters envParams;
         envParams.attack = attackParam->load();
@@ -89,8 +100,21 @@ public:
         envParams.release = releaseParam->load();
 
         env.setParameters(envParams);
+        
+        juce::ADSR::Parameters pitchEnvParams;
+        pitchEnvParams.attack = pitchAttackParam->load();
+        pitchEnvParams.decay = pitchDecayParam->load();
+        pitchEnvParams.sustain = pitchSustainParam->load();
+        pitchEnvParams.release = pitchReleaseParam->load();
+
+
+
+        pitchEnv.setParameters(pitchEnvParams);
+
+
 
         env.noteOn();
+        pitchEnv.noteOn();
     }
     //--------------------------------------------------------------------------
     /// Called when a MIDI noteOff message is received
@@ -103,6 +127,7 @@ public:
     void stopNote(float /*velocity*/, bool allowTailOff) override
     {
         env.noteOff();
+        pitchEnv.noteOff();
     }
     
     //--------------------------------------------------------------------------
@@ -130,6 +155,22 @@ public:
                     toneMatrixSample = toneMatrix.process();
                     toneMatrixVolumeBalancer++;
                 }
+
+
+                
+
+                float floatMidiNote = currentMidiNoteNumber + pitchBendRangeParam->load() * pitchEnv.getNextSample();
+
+                float frequency = 440 * pow(2, (floatMidiNote - 69) / 12);
+
+                phasors.setFrequencies(frequency);
+
+
+
+
+
+
+
                 
                 float synthMixSample = phasors.process(); 
                 float envValue = env.getNextSample();
@@ -181,12 +222,25 @@ private:
 
     juce::ADSR env;
 
+    juce::ADSR pitchEnv;
+
+    int currentMidiNoteNumber;
+
     std::atomic<float>* lifeNoteParam;
 
     std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;
     std::atomic<float>* sustainParam;
     std::atomic<float>* releaseParam;
+
+    std::atomic<float>* pitchAttackParam;
+    std::atomic<float>* pitchDecayParam;
+    std::atomic<float>* pitchSustainParam;
+    std::atomic<float>* pitchReleaseParam;
+
+    std::atomic<float>* pitchBendRangeParam;
+
+
 
 
     std::atomic<float>* sinPropParam;
