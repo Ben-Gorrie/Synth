@@ -1,9 +1,10 @@
 /*
   ==============================================================================
 
-    YourSynthesiser.h
+    LifeSynth.h
     Created: 7 Mar 2020 4:27:57pm
-    Author:  Tom Mudd
+    Author: Ben Gorrie
+    Inspired by: Tom Mudd
 
   ==============================================================================
 */
@@ -29,7 +30,7 @@ public:
 
 // =================================
 // =================================
-// Synthesiser Voice - your synth code goes in here
+// Synthesiser Voice
 
 /*!
  @class LifeSynthVoice
@@ -37,7 +38,6 @@ public:
  @discussion multiple LifeSynthVoice objects will be created by the Synthesiser so that it can be played polyphicially
  
  @namespace none
- @updated 2019-06-18
  */
 class LifeSynthVoice : public juce::SynthesiserVoice
 {
@@ -49,6 +49,9 @@ public:
     void setParametersFromAPVTS(juce::AudioProcessorValueTreeState& apvts)
     {
         lifeNoteParam = apvts.getRawParameterValue("lifeNote");
+        lifeResetParam = apvts.getRawParameterValue("lifeResetChoice");
+        lifeInitStateParam = apvts.getRawParameterValue("lifeInitState");
+        lifeRandomNumberParam = apvts.getRawParameterValue("lifeRandomNumber");
 
         attackParam = apvts.getRawParameterValue("attack");    
         decayParam = apvts.getRawParameterValue("decay");    
@@ -92,7 +95,6 @@ public:
         //phasors.setFrequencies(freq);
 
         env.setSampleRate(getSampleRate());
-
         pitchEnv.setSampleRate(getSampleRate());
 
 
@@ -110,11 +112,12 @@ public:
         pitchEnvParams.sustain = pitchSustainParam->load();
         pitchEnvParams.release = pitchReleaseParam->load();
 
-
-
         pitchEnv.setParameters(pitchEnvParams);
 
-
+        if (lifeResetParam->load() == 1)
+        {
+            toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
+        }
 
         env.noteOn();
         pitchEnv.noteOn();
@@ -135,7 +138,7 @@ public:
     
     //--------------------------------------------------------------------------
     /**
-     The Main DSP Block: Put your DSP code in here
+     The Main DSP Block
      
      If the sound that the voice is playing finishes during the course of this rendered block, it must call clearCurrentNote(), to tell the synthesiser that it has finished
 
@@ -199,7 +202,7 @@ public:
     void controllerMoved(int, int) override {}
     //--------------------------------------------------------------------------
     /**
-     Can this voice play a sound. I wouldn't worry about this for the time being
+     Can this voice play a sound. Currently unused. 
 
      @param sound a juce::SynthesiserSound* base class pointer
      @return sound cast as a pointer to an instance of LifeSynthSound
@@ -224,6 +227,9 @@ private:
     int currentMidiNoteNumber;
 
     std::atomic<float>* lifeNoteParam;
+    std::atomic<float>* lifeResetParam;
+    std::atomic<float>* lifeInitStateParam;
+    std::atomic<float>* lifeRandomNumberParam;
 
     std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;
@@ -237,15 +243,10 @@ private:
 
     std::atomic<float>* pitchBendRangeParam;
 
-
-
-
     std::atomic<float>* sinPropParam;
     std::atomic<float>* triPropParam;
     std::atomic<float>* squarePropParam;
     std::atomic<float>* sawPropParam;
-
-
 
     std::atomic<float>* phaseModIndexParam;
     std::atomic<float>* phaseModFreqParam;

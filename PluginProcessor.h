@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Synthesiser Starting code (sound and voice).h"
+#include "LifeSynth.h"
 #include "Panning.h"
 
 //==============================================================================
