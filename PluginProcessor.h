@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "LifeSynth.h"
 #include "Panning.h"
+#include "ChangingFilter.h"
 
 //==============================================================================
 /**
@@ -138,4 +139,7 @@ private:
 
     // Panning
     Panning panning;
+
+    // Filter
+    ChangingFilter changingFilter;
 };

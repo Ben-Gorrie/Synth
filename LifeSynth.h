@@ -191,9 +191,9 @@ public:
         }
     }
 
-    void setInitialState(const std::vector<std::pair<int, int>>& liveCells, int sampleRate)
+    void setInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
     {
-        toneMatrix.setInitialState(liveCells, sampleRate);
+        toneMatrix.setInitialState(choiceParam, randomNumberOfCellsParam, sampleRate);
     }
 
     //--------------------------------------------------------------------------

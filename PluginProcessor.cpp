@@ -109,22 +109,10 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Set the sample rate for the synth
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
-    // Initialise the game of life state for each voice
-    std::vector<std::pair<int, int>> initialState;
-    initialState.clear();
-    initialState.push_back({3, 4});
-    initialState.push_back({4, 4});
-    initialState.push_back({5, 4});
-    initialState.push_back({7, 0});
-    initialState.push_back({7, 1});
-    initialState.push_back({7, 2});
-    initialState.push_back({9, 4});
-    initialState.push_back({10, 4});
-    initialState.push_back({11, 4});
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
         auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
-        voice->setInitialState(initialState, sampleRate);
+        voice->setInitialState(apvts.getRawParameterValue("lifeInitState"), apvts.getRawParameterValue("lifeRandomNumber"), sampleRate);
     }
 
     // Reset the reverb and set the sample rate
@@ -148,6 +136,12 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     chorus.prepare(spec);
 
     panning.setSampleRate(sampleRate);
+
+    // Initialise the filter which changes cutoff based on LFOs 
+    changingFilter.createLFOs(sampleRate);
+    changingFilter.setLFOFrequencies(0.5f, 0.1f);
+    changingFilter.initFilter();
+
 
     juce::File logFile("~/logfile.txt");
     logFile.deleteFile(); // Clear the log file at startup
@@ -204,8 +198,25 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
 
+    float* left = buffer.getWritePointer(0);
+    float* right = buffer.getWritePointer(1);
+
+
     // Process the buffer with the synth
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+
+    for (int i = 0; i < numSamples; i++)
+    {
+        // Change coefficients of the low pass filter
+        changingFilter.setCutoff(700, 100);
+        changingFilter.setFilterCoefs();
+
+        float sample = buffer.getSample(0, i);
+
+        left[i] = changingFilter.process(sample);
+        right[i] = changingFilter.process(sample);
+    }
+   
 
     // Create an AudioBlock from the given audio buffer. This wraps the buffer in a DSP-friendly format.
     juce::dsp::AudioBlock<float> block(buffer);
