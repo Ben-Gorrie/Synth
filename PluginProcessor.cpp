@@ -217,7 +217,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     chorus.process(context);
     
     // Check if the reverb is on or off. If it is off, there is no point changing the parameters
-    if (apvts.getRawParameterValue("reverbChoice")->load() == 1)
+    if (apvts.getRawParameterValue("reverbChoice")->load())
     {
         // Change the reverb parameters if the reverb is turned on
         juce::Reverb::Parameters reverbParams;

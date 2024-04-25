@@ -101,7 +101,7 @@ private:
         layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("lifeRandomNumber", 1), "Game of Life initial number of random cells", 0, 128, 40));
 
         // Toggles reverb on or off
-        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", juce::StringArray({"Off", "On"}), 0));
+        layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", false));
 
         // Parameters for reverb.
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDry", 1), "Reverb Dry Level", 0, 1, 0));
