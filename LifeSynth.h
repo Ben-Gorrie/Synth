@@ -13,6 +13,7 @@
 #include "Oscillators.h"
 #include "ToneMatrix.h"
 #include "AllPhasorsVec.h"
+#include "ChangingFilter.h"
 
 // ===========================
 // ===========================
@@ -72,7 +73,15 @@ public:
 
         phaseModIndexParam = apvts.getRawParameterValue("phaseModulationIndex");
         phaseModFreqParam = apvts.getRawParameterValue("phaseModulationFreq");
+
+        filterChoiceParam = apvts.getRawParameterValue("filterChoice");
+        filterLFOFreqsParam = apvts.getRawParameterValue("filterLFOFreqs");
+        filterLFOFreqsOffsetParam = apvts.getRawParameterValue("filterLFOFreqsOffset");
+        filterBaseCutoffParam = apvts.getRawParameterValue("filterBaseCutoff");
+        filterModulationDepthParam = apvts.getRawParameterValue("filterModulationDepth");
+
     }
+
 
 
     /**
@@ -118,6 +127,11 @@ public:
         {
             toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
         }
+
+        // Initialise the filter which changes cutoff based on LFOs 
+        changingFilter.createLFOs(getSampleRate());
+        changingFilter.setLFOFrequencies(filterLFOFreqsParam->load(), filterLFOFreqsOffsetParam->load());
+        changingFilter.initFilter();
 
         env.noteOn();
         pitchEnv.noteOn();
@@ -170,11 +184,20 @@ public:
 
                 float synthMixSample = phasors.process(); 
                 float envValue = env.getNextSample();
+
+                float combinedSample = (synthMixSample + toneMatrixSample ) / toneMatrixVolumeBalancer;
+
+                if (filterChoiceParam->load() == 1)
+                {
+                    changingFilter.setCutoff(filterBaseCutoffParam->load(), filterModulationDepthParam->load());
+                    changingFilter.setFilterCoefs();
+                    combinedSample = changingFilter.process(combinedSample);
+                }
                 
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
-                    outputBuffer.addSample(chan, sampleIndex, ((synthMixSample + toneMatrixSample) / toneMatrixVolumeBalancer) * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, combinedSample * envValue);
                 }
 
                 if (!env.isActive())
@@ -252,5 +275,14 @@ private:
     std::atomic<float>* phaseModFreqParam;
 
     ToneMatrix toneMatrix;
+    ChangingFilter changingFilter;
+    std::atomic<float>* filterChoiceParam;
+
+    std::atomic<float>* filterLFOFreqsParam;
+    std::atomic<float>* filterLFOFreqsOffsetParam;
+    std::atomic<float>* filterBaseCutoffParam;
+    std::atomic<float>* filterModulationDepthParam;
+
+
 
 };

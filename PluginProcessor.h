@@ -11,7 +11,6 @@
 #include <JuceHeader.h>
 #include "LifeSynth.h"
 #include "Panning.h"
-#include "ChangingFilter.h"
 
 //==============================================================================
 /**
@@ -128,6 +127,13 @@ private:
         // Frequency that controls frequency of modulator oscillator
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 20.0f, 1.0f));
 
+        // Filter parameters 
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("filterChoice", 1), "Low-Pass filter toggle", juce::StringArray({"Off", "On"}), 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqs", 1), "Frequency determining changing low-pass filter cutoff", 0.0f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqsOffset", 1), "Frequency offset for LFOs", 0.0f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterBaseCutoff", 1), "Base cutoff for low-pass filter", 0.0f, 7000.0f, 700.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterModulationDepth", 1), "Modulation depth for cutoff", 0.0f, 300.0f, 100.0f));
+
         return layout;
     }
 
@@ -140,6 +146,4 @@ private:
     // Panning
     Panning panning;
 
-    // Filter
-    ChangingFilter changingFilter;
 };

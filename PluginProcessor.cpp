@@ -137,12 +137,7 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     panning.setSampleRate(sampleRate);
 
-    // Initialise the filter which changes cutoff based on LFOs 
-    changingFilter.createLFOs(sampleRate);
-    changingFilter.setLFOFrequencies(0.5f, 0.1f);
-    changingFilter.initFilter();
-
-
+    
     juce::File logFile("~/logfile.txt");
     logFile.deleteFile(); // Clear the log file at startup
     juce::Logger::setCurrentLogger(new juce::FileLogger(logFile, "Log Header", 0));
@@ -205,18 +200,6 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Process the buffer with the synth
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
 
-    for (int i = 0; i < numSamples; i++)
-    {
-        // Change coefficients of the low pass filter
-        changingFilter.setCutoff(700, 100);
-        changingFilter.setFilterCoefs();
-
-        float sample = buffer.getSample(0, i);
-
-        left[i] = changingFilter.process(sample);
-        right[i] = changingFilter.process(sample);
-    }
-   
 
     // Create an AudioBlock from the given audio buffer. This wraps the buffer in a DSP-friendly format.
     juce::dsp::AudioBlock<float> block(buffer);
