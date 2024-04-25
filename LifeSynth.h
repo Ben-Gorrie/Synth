@@ -123,7 +123,7 @@ public:
 
         pitchEnv.setParameters(pitchEnvParams);
 
-        if (lifeResetParam->load() == 1)
+        if (lifeResetParam->load())
         {
             toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
         }
