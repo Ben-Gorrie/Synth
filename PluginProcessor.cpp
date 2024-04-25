@@ -234,7 +234,7 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         reverb.processStereo(left, right, numSamples);
     }
 
-    if (apvts.getRawParameterValue("panningChoice")->load() == 1)
+    if (apvts.getRawParameterValue("panningChoice")->load())
     {
 
         float* left = buffer.getWritePointer(0);

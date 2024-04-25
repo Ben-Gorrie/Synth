@@ -187,7 +187,7 @@ public:
 
                 float combinedSample = (synthMixSample + toneMatrixSample ) / toneMatrixVolumeBalancer;
 
-                if (filterChoiceParam->load() == 1)
+                if (filterChoiceParam->load())
                 {
                     changingFilter.setCutoff(filterBaseCutoffParam->load(), filterModulationDepthParam->load());
                     changingFilter.setFilterCoefs();
