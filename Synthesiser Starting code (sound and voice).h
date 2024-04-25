@@ -147,8 +147,6 @@ public:
     {
         if (playing) // check to see if this voice should be playing
         {
-            juce::Logger::writeToLog("Playing is true");
-            juce::Logger::writeToLog(std::to_string(playing));
             // iterate through the necessary number of samples (from startSample up to startSample + numSamples)
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
@@ -171,7 +169,7 @@ public:
                 float envValue = env.getNextSample();
                 
                 // for each channel, write the currentSample float to the output
-                for (int chan = 0; chan<outputBuffer.getNumChannels(); chan++)
+                for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
                     outputBuffer.addSample(chan, sampleIndex, ((synthMixSample + toneMatrixSample) / toneMatrixVolumeBalancer) * envValue);
                 }
@@ -186,7 +184,6 @@ public:
             if (playing == false)
             {
                 toneMatrix.incrementColumnAndWrap();
-                juce::Logger::writeToLog("Env finished");
             }
         }
     }

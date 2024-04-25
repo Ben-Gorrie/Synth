@@ -1,5 +1,9 @@
 #include "GameOfLife.h"
 #include "Oscillators.h"
+#include <vector>
+#include <set>
+#include <random>
+#include <algorithm>
 
 class ToneMatrix
 {
@@ -66,12 +70,18 @@ public:
         // Increment the sample with each oscillator
         for (auto& osc : phasors)
         {
-           sample += osc.process(); 
+            sample += osc.process(); 
+            juce::Logger::writeToLog(std::to_string(sample));
+            
         }
 
         // Normalise the sample and return it
         if (!checkColumn(currentColumn).empty())
         {
+            //juce::Logger::writeToLog("Sample produced by game of life");
+            //juce::Logger::writeToLog("Number of notes to play");
+            //juce::Logger::writeToLog(std::to_string(checkColumn(currentColumn).size()));
+            //juce::Logger::writeToLog(std::to_string(sample / checkColumn(currentColumn).size()));
             return sample / checkColumn(currentColumn).size();
         }
         else {
@@ -83,7 +93,7 @@ public:
     {
         // If we are at the last column, update the board
         //juce::Logger::writeToLog("Incrementing column");
-        if (currentColumn == gameOfLife.getWidth())
+        if ((currentColumn + 1) == gameOfLife.getWidth())
         {
 
 

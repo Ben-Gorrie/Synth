@@ -26,6 +26,17 @@ public:
             }
         }
     }
+    
+    // Debugging function
+    void visualize() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                std::cout << (grid[y * width + x] ? '#' : '.');
+            }
+            std::cout << '\n';
+        }
+        std::cout << std::string(width, '@') << '\n'; // Separator line for clarity
+    }
 
 
     std::vector<bool> getGrid()
