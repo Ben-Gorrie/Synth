@@ -170,7 +170,7 @@ public:
 
                 float toneMatrixSample = 0;
                 int toneMatrixVolumeBalancer = 1;
-                if (lifeNoteParam->load() == 1)
+                if (lifeNoteParam->load())
                 {
                     toneMatrixSample = toneMatrix.process();
                     toneMatrixVolumeBalancer++;
