@@ -13,7 +13,8 @@ public:
         phasors.clear();    
         for (int i = 0; i < gameOfLife.getHeight(); i++)
         {
-            phasors.push_back(new TriOsc());
+            TriOsc triOsc;
+            phasors.push_back(triOsc);
         }
     }
 
@@ -35,12 +36,9 @@ public:
         return midiNotesToPlay;
     }
 
-    void setInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
+    void setInitialState(int choiceParam, int randomNumberOfCellsParam, float sampleRate)
     {
-        int choiceNumber = choiceParam->load();
-        int randomNumberOfLiveCells = randomNumberOfCellsParam->load();
-
-        gameOfLife.setInitialState(presetStates(choiceNumber, randomNumberOfLiveCells));
+        gameOfLife.setInitialState(presetStates(choiceParam, randomNumberOfCellsParam));
         for (int i = 0; i < gameOfLife.getHeight(); i++)
         {
             phasors[i].setSampleRate(sampleRate);
@@ -56,16 +54,12 @@ public:
     {
         std::vector<int> midiNotesToPlay = checkColumn(columnIndex);
         
-        for (auto& osc : phasors)
-        {
-            osc.setFrequency(0);
-        }
-
         if (!midiNotesToPlay.empty())
         {
             for (int i = 0; i < midiNotesToPlay.size(); i++)
             {
-                phasors[i].setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNotesToPlay[i]));
+                float frequency = 440 * pow(2, (midiNotesToPlay[i] - 69) / 12);
+                phasors[i].setFrequency(frequency);
             }     
         }
     }
@@ -76,19 +70,18 @@ public:
         // Store the output of all of the oscillators 
         float sample = 0;
 
+        std::cout << "Starting to process column " << currentColumn << "\n";
+
         // Increment the sample with each oscillator
-        for (auto& osc : phasors)
+        for (int i = 0; i < checkColumn(currentColumn).size(); i++)
         {
-            sample += osc.process(); 
+            sample += phasors[i].process();
+             std::cout << "Sample is now " << sample << "\n";
         }
 
         // Normalise the sample and return it
         if (!checkColumn(currentColumn).empty())
         {
-            //juce::Logger::writeToLog("Sample produced by game of life");
-            //juce::Logger::writeToLog("Number of notes to play");
-            //juce::Logger::writeToLog(std::to_string(checkColumn(currentColumn).size()));
-            //juce::Logger::writeToLog(std::to_string(sample / checkColumn(currentColumn).size()));
             return sample / checkColumn(currentColumn).size();
         }
         else {
@@ -99,15 +92,8 @@ public:
     void incrementColumnAndWrap()
     {
         // If we are at the last column, update the board
-        //juce::Logger::writeToLog("Incrementing column");
         if ((currentColumn + 1) == gameOfLife.getWidth())
         {
-
-
-            //juce::Logger::writeToLog("Column is at end");
-
-            //juce::Logger::writeToLog(std::to_string(currentColumn));
-            //juce::Logger::writeToLog("Updating board");
             gameOfLife.update();
         }
         currentColumn = (currentColumn + 1) % gameOfLife.getWidth();

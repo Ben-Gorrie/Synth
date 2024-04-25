@@ -92,6 +92,13 @@ private:
 
         // Controls whether the Tone Matrix, which changes according to the rules of the game of life, plays a note when a cell is live in a particular column
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeNote", 1), "Game of Life note toggle", juce::StringArray({"Off", "On"}), 1));
+        // Reset game of life toggle
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeResetChoice", 1), "Game of Life reset toggle", juce::StringArray({"Off", "On"}), 0));
+        // Presets for the game of life
+        layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeInitState", 1), "Game of Life initial state", 
+                                                                juce::StringArray({"Cube", "Pentadecathlon", "Tumbler", "Figure eight", "Octagon 2", "Random"}), 0));
+        // Number of cells to populate if the initial choice is Random
+        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("lifeRandomNumber", 1), "Game of Life initial number of random cells", 0, 128, 40));
 
         // Toggles reverb on or off
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", juce::StringArray({"Off", "On"}), 0));
