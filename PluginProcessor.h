@@ -67,6 +67,10 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     {
         juce::AudioProcessorValueTreeState::ParameterLayout layout;
+        
+        // Allows the game of life to control the synth on its own
+        layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("lifeControl", 1), "Game of Life synth control toggle", false));
+
         // ADSR parameters for amplitude envelope
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Volume Attack", 0.001, 4.0, 0.1));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Volume Decay", 0.001, 4.0, 0.25));

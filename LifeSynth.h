@@ -14,7 +14,6 @@
 #include "ToneMatrix.h"
 #include "AllPhasorsVec.h"
 #include "ChangingFilter.h"
-
 // ===========================
 // ===========================
 // SOUND
@@ -49,12 +48,14 @@ public:
     
     void setParametersFromAPVTS(juce::AudioProcessorValueTreeState& apvts)
     {
+        lifeControlParam = apvts.getRawParameterValue("lifeControl");
         lifeNoteParam = apvts.getRawParameterValue("lifeNote");
         lifeResetParam = apvts.getRawParameterValue("lifeResetChoice");
         lifeInitStateParam = apvts.getRawParameterValue("lifeInitState");
         lifeRandomNumberParam = apvts.getRawParameterValue("lifeRandomNumber");
 
-        attackParam = apvts.getRawParameterValue("attack");    
+        //attackParam = apvts.getRawParameterValue("attack");    
+        attackWholeParam = apvts.getParameter("attack");
         decayParam = apvts.getRawParameterValue("decay");    
         sustainParam = apvts.getRawParameterValue("sustain");    
         releaseParam = apvts.getRawParameterValue("release");    
@@ -95,20 +96,27 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
 
+        if (lifeResetParam->load())
+        {
+            toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
+        }
+
+
         currentMidiNoteNumber = midiNoteNumber;
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
         phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
 
-        //phasors.setFrequencies(freq);
-
         env.setSampleRate(getSampleRate());
         pitchEnv.setSampleRate(getSampleRate());
 
-
         juce::ADSR::Parameters envParams;
-        envParams.attack = attackParam->load();
+        if (lifeControlParam->load())
+        {
+            toneMatrix.changeSliderParamAccordingToColumn(attackWholeParam);
+        }
+        envParams.attack = attackWholeParam->getValue();
         envParams.decay = decayParam->load();
         envParams.sustain = sustainParam->load();
         envParams.release = releaseParam->load();
@@ -123,10 +131,7 @@ public:
 
         pitchEnv.setParameters(pitchEnvParams);
 
-        if (lifeResetParam->load())
-        {
-            toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
-        }
+        
 
         // Initialise the filter which changes cutoff based on LFOs 
         changingFilter.createLFOs(getSampleRate());
@@ -249,12 +254,14 @@ private:
 
     int currentMidiNoteNumber;
 
+    std::atomic<float>* lifeControlParam;
+
     std::atomic<float>* lifeNoteParam;
     std::atomic<float>* lifeResetParam;
     std::atomic<float>* lifeInitStateParam;
     std::atomic<float>* lifeRandomNumberParam;
 
-    std::atomic<float>* attackParam;
+    //std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;
     std::atomic<float>* sustainParam;
     std::atomic<float>* releaseParam;
@@ -283,6 +290,7 @@ private:
     std::atomic<float>* filterBaseCutoffParam;
     std::atomic<float>* filterModulationDepthParam;
 
+    juce::RangedAudioParameter* attackWholeParam;
 
 
 };

@@ -97,6 +97,13 @@ public:
         currentColumn = (currentColumn + 1) % gameOfLife.getWidth();
     }
 
+    void changeSliderParamAccordingToColumn(juce::RangedAudioParameter* paramWhole)
+    {
+        paramWhole->setValueNotifyingHost(random.nextFloat());
+    }
+
+
+
 private:
     GameOfLife gameOfLife;
     std::vector<TriOsc> phasors;
