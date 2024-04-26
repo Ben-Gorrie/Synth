@@ -99,7 +99,19 @@ public:
 
     void changeSliderParamAccordingToColumn(juce::RangedAudioParameter* paramWhole)
     {
-        paramWhole->setValueNotifyingHost(random.nextFloat());
+        float minVal = paramWhole->getNormalisableRange().start;
+        float maxVal = paramWhole->getNormalisableRange().end;
+        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth();
+        float currentValue = paramWhole->getValue();
+        std::vector<int> midiNotesToPlay = checkColumn(currentColumn);
+        if (!midiNotesToPlay.empty())
+        {
+            paramWhole->setValueNotifyingHost(std::min(currentValue + midiNotesToPlay.size() * incrementVal, maxVal));
+        } else 
+        {
+            paramWhole->setValueNotifyingHost(std::max(currentValue - incrementVal * 0.3f, minVal));
+        }
+        //paramWhole->setValueNotifyingHost(random.nextFloat());
     }
 
 

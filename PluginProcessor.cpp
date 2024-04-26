@@ -193,8 +193,8 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
 
-    float* left = buffer.getWritePointer(0);
-    float* right = buffer.getWritePointer(1);
+    //float* left = buffer.getWritePointer(0);
+    //float* right = buffer.getWritePointer(1);
 
 
     // Process the buffer with the synth
