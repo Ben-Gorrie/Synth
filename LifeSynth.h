@@ -54,11 +54,10 @@ public:
         lifeInitStateParam = apvts.getRawParameterValue("lifeInitState");
         lifeRandomNumberParam = apvts.getRawParameterValue("lifeRandomNumber");
 
-        //attackParam = apvts.getRawParameterValue("attack");    
-        attackWholeParam = apvts.getParameter("attack");
-        decayParam = apvts.getRawParameterValue("decay");    
-        sustainParam = apvts.getRawParameterValue("sustain");    
-        releaseParam = apvts.getRawParameterValue("release");    
+        attackParam = apvts.getParameter("attack");
+        decayParam = apvts.getParameter("decay");    
+        sustainParam = apvts.getParameter("sustain");    
+        releaseParam = apvts.getParameter("release");    
 
         pitchAttackParam = apvts.getRawParameterValue("attackPitch");
         pitchDecayParam = apvts.getRawParameterValue("decayPitch");    
@@ -112,18 +111,22 @@ public:
         pitchEnv.setSampleRate(getSampleRate());
 
         juce::ADSR::Parameters envParams;
+        juce::ADSR::Parameters pitchEnvParams;
         if (lifeControlParam->load())
         {
-            toneMatrix.changeSliderParamAccordingToColumn(attackWholeParam);
+            toneMatrix.changeSliderParamAccordingToColumn(attackParam);
+            toneMatrix.changeSliderParamAccordingToColumn(decayParam);
+            toneMatrix.changeSliderParamAccordingToColumn(sustainParam);
+            toneMatrix.changeSliderParamAccordingToColumn(releaseParam);
         }
-        envParams.attack = attackWholeParam->getValue();
-        envParams.decay = decayParam->load();
-        envParams.sustain = sustainParam->load();
-        envParams.release = releaseParam->load();
+
+        envParams.attack = attackParam->getValue();
+        envParams.decay = decayParam->getValue();
+        envParams.sustain = sustainParam->getValue();
+        envParams.release = releaseParam->getValue();
 
         env.setParameters(envParams);
         
-        juce::ADSR::Parameters pitchEnvParams;
         pitchEnvParams.attack = pitchAttackParam->load();
         pitchEnvParams.decay = pitchDecayParam->load();
         pitchEnvParams.sustain = pitchSustainParam->load();
@@ -261,10 +264,10 @@ private:
     std::atomic<float>* lifeInitStateParam;
     std::atomic<float>* lifeRandomNumberParam;
 
-    //std::atomic<float>* attackParam;
-    std::atomic<float>* decayParam;
-    std::atomic<float>* sustainParam;
-    std::atomic<float>* releaseParam;
+    juce::RangedAudioParameter* attackParam;
+    juce::RangedAudioParameter* decayParam;
+    juce::RangedAudioParameter* sustainParam;
+    juce::RangedAudioParameter* releaseParam;
 
     std::atomic<float>* pitchAttackParam;
     std::atomic<float>* pitchDecayParam;
@@ -289,8 +292,6 @@ private:
     std::atomic<float>* filterLFOFreqsOffsetParam;
     std::atomic<float>* filterBaseCutoffParam;
     std::atomic<float>* filterModulationDepthParam;
-
-    juce::RangedAudioParameter* attackWholeParam;
 
 
 };

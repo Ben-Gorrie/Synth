@@ -100,7 +100,7 @@ private:
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("lifeResetChoice", 1), "Game of Life reset toggle", false));
         // Presets for the game of life
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeInitState", 1), "Game of Life initial state", 
-                                                                juce::StringArray({"Cube", "Pentadecathlon", "Tumbler", "Figure eight", "Octagon 2", "Random"}), 0));
+                                                                juce::StringArray({"Cube", "Pentadecathlon", "Tumbler", "Figure eight", "Octagon 2", "Random"}), 2));
         // Number of cells to populate if the initial choice is Random
         layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("lifeRandomNumber", 1), "Game of Life initial number of random cells", 0, 128, 40));
 
