@@ -212,7 +212,11 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             if (message.isNoteOn() && message.getVelocity() > 0)
             {
                 ToneMatrix firstToneMatrix = dynamic_cast<LifeSynthVoice*>(synth.getVoice(0))->getToneMatrix();
-                       //HERE
+                firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("rate"));
+                firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("depth"));
+                firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("mix"));
+            }
+        }
     }
 
     // Change chorus parameters

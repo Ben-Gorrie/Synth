@@ -97,20 +97,40 @@ public:
         currentColumn = (currentColumn + 1) % gameOfLife.getWidth();
     }
 
+   
     void changeSliderParamAccordingToColumn(juce::RangedAudioParameter* paramWhole)
     {
         float minVal = paramWhole->getNormalisableRange().start;
         float maxVal = paramWhole->getNormalisableRange().end;
 
-        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth() * (random.nextFloat() / 2 + 0.5f);
+        float fixedMaxVal = 1.0f;
+        float fixedMinVal = 0.0f;
+
+        if (paramWhole->getParameterID().contains("reverb"))
+        {
+            fixedMaxVal = 0.75f;
+            fixedMinVal = 0.05f;
+        }
+
+        
+        // Normalize the current value between 0 and 1
         float currentValue = paramWhole->getValue();
+        float normalizedCurrentValue = (currentValue - minVal) / (maxVal - minVal); 
+
+        float incrementProp = 0.01f + (random.nextFloat() / 10);
         std::vector<int> midiNotesToPlay = checkColumn(currentColumn);
         if (!midiNotesToPlay.empty())
         {
-            paramWhole->setValueNotifyingHost(std::min(currentValue + midiNotesToPlay.size() * incrementVal * 0.5f, maxVal));
+            float increment = midiNotesToPlay.size() * incrementProp;
+            // Apply increment and clamp the value between 0 and 1
+            float newNormalizedValue = std::min(normalizedCurrentValue + increment, fixedMaxVal);
+            paramWhole->setValueNotifyingHost(newNormalizedValue);
         } else 
         {
-            paramWhole->setValueNotifyingHost(std::max(currentValue - incrementVal, minVal));
+            float decrement = incrementProp;
+            // Apply decrement and clamp the value between 0 and 1
+            float newNormalizedValue = std::max(normalizedCurrentValue - decrement, fixedMinVal);
+            paramWhole->setValueNotifyingHost(newNormalizedValue);
         }
     }
 
