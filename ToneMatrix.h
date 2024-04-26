@@ -101,6 +101,7 @@ private:
     GameOfLife gameOfLife;
     std::vector<TriOsc> phasors;
     int currentColumn = 0;
+    juce::Random random;
 
 
     std::vector<std::pair<int, int>> presetStates(int choiceInt, int randomNumberOfLiveCells)
@@ -200,16 +201,11 @@ private:
 
         } else if (choiceInt == 5)
         {
-            std::random_device dev;
-            std::mt19937 rng(dev());
-            std::uniform_int_distribution<std::mt19937::result_type> dist_width(0, 15);
-            std::uniform_int_distribution<std::mt19937::result_type> dist_height(0, 7);
-
             std::set<std::pair<int, int>> usedPositions;
 
             while (usedPositions.size() < randomNumberOfLiveCells) {
-                int randomWidth = dist_width(rng);
-                int randomHeight = dist_height(rng);
+                int randomWidth = random.nextInt(16); 
+                int randomHeight =  random.nextInt(8);
                 usedPositions.insert({randomWidth, randomHeight}); // set automatically handles duplicates
             }
 
