@@ -72,16 +72,16 @@ private:
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("lifeControl", 1), "Game of Life synth control toggle", false));
 
         // ADSR parameters for amplitude envelope
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Volume Attack", 0.001, 4.0, 0.1));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Volume Decay", 0.001, 4.0, 0.25));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Volume Sustain", 0.001, 1.0, 0.5));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("release", 1), "Volume Release", 0.001, 8.0, 1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attack", 1), "Volume Attack", 0.01, 4.0, 0.1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decay", 1), "Volume Decay", 0.01, 4.0, 0.25));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustain", 1), "Volume Sustain", 0.01, 1.0, 0.5));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("release", 1), "Volume Release", 0.01, 8.0, 1));
 
         // ADSR parameters for pitch envelope
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attackPitch", 1), "Pitch Attack", 0.001, 4.0, 0.1));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decayPitch", 1), "Pitch Decay", 0.001, 4.0, 0.25));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustainPitch", 1), "Pitch Sustain", 0.001, 1.0, 0.5));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("releasePitch", 1), "Pitch Release", 0.001, 8.0, 1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("attackPitch", 1), "Pitch Attack", 0.01, 4.0, 0.1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("decayPitch", 1), "Pitch Decay", 0.01, 4.0, 0.25));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sustainPitch", 1), "Pitch Sustain", 0.01, 1.0, 0.5));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("releasePitch", 1), "Pitch Release", 0.01, 8.0, 1));
 
         // Pitch bending range parameter
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("pitchRange", 1), "Pitch Bending Range", 0, 50.0f, 5.0f));

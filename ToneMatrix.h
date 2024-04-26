@@ -101,7 +101,7 @@ public:
     {
         float minVal = paramWhole->getNormalisableRange().start;
         float maxVal = paramWhole->getNormalisableRange().end;
-        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth();
+        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth() * ((maxVal - minVal) * 0.025);
         float currentValue = paramWhole->getValue();
         std::vector<int> midiNotesToPlay = checkColumn(currentColumn);
         if (!midiNotesToPlay.empty())
@@ -109,7 +109,7 @@ public:
             paramWhole->setValueNotifyingHost(std::min(currentValue + midiNotesToPlay.size() * incrementVal, maxVal));
         } else 
         {
-            paramWhole->setValueNotifyingHost(std::max(currentValue - incrementVal * 0.3f, minVal));
+            paramWhole->setValueNotifyingHost(std::max(currentValue - incrementVal, minVal));
         }
         //paramWhole->setValueNotifyingHost(random.nextFloat());
     }
