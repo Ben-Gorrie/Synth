@@ -107,8 +107,8 @@ private:
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", false));
 
         // Parameters for reverb.
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDry", 1), "Reverb Dry Level", 0, 1, 0));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWet", 1), "Reverb Wet Level", 0, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDry", 1), "Reverb Dry Level", 0.01f, 1, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWet", 1), "Reverb Wet Level", 0.01f, 1, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbRoomSize", 1), "Reverb Room Size", 0, 1, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbWidth", 1), "Reverb Width", 0, 1, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reverbDamping", 1), "Reverb Damping", 0, 1, 0));
