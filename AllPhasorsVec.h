@@ -12,7 +12,9 @@
 class AllPhasorsVec
 {
 public:
-    void initPhasors(float sampleRate, std::atomic<float>* sinProp, std::atomic<float>* triProp, std::atomic<float>* squareProp, std::atomic<float>* sawProp, std::atomic<float>* phaseModIndex, std::atomic<float>* phaseModFreq)
+    void initPhasors(float sampleRate,
+                     juce::RangedAudioParameter* sinProp, juce::RangedAudioParameter* triProp, juce::RangedAudioParameter* squareProp, juce::RangedAudioParameter* sawProp,
+                     juce::RangedAudioParameter* phaseModIndex, juce::RangedAudioParameter* phaseModFreq)
     {
         phasors.clear();
         phasorProportions.clear();
@@ -24,16 +26,16 @@ public:
         for (auto& phasor : phasors)
         {
             phasor->setSampleRate(sampleRate);
-            phasor->setModulationIndex(phaseModIndex->load());
+            phasor->setModulationIndex(phaseModIndex->getValue());
         }
 
-        phasorProportions.push_back(sinProp->load());
-        phasorProportions.push_back(triProp->load());
-        phasorProportions.push_back(squareProp->load());
-        phasorProportions.push_back(sawProp->load());
+        phasorProportions.push_back(sinProp->getValue());
+        phasorProportions.push_back(triProp->getValue());
+        phasorProportions.push_back(squareProp->getValue());
+        phasorProportions.push_back(sawProp->getValue());
 
         sinOscPhaseModulator.setSampleRate(sampleRate);
-        sinOscPhaseModulator.setFrequency(phaseModFreq->load());
+        sinOscPhaseModulator.setFrequency(phaseModFreq->getValue());
     }
 
     void setFrequencies(float frequency)

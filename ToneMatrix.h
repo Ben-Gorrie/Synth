@@ -101,21 +101,17 @@ public:
     {
         float minVal = paramWhole->getNormalisableRange().start;
         float maxVal = paramWhole->getNormalisableRange().end;
-        if (maxVal == 1.0)
-        {
-            juce::Logger::writeToLog("Sustain parameter received");
-        }
-        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth();
+
+        float incrementVal = (maxVal - minVal) / gameOfLife.getWidth() * (random.nextFloat() / 2 + 0.5f);
         float currentValue = paramWhole->getValue();
         std::vector<int> midiNotesToPlay = checkColumn(currentColumn);
         if (!midiNotesToPlay.empty())
         {
-            paramWhole->setValueNotifyingHost(std::min(currentValue + midiNotesToPlay.size() * incrementVal, maxVal));
+            paramWhole->setValueNotifyingHost(std::min(currentValue + midiNotesToPlay.size() * incrementVal * 0.5f, maxVal));
         } else 
         {
             paramWhole->setValueNotifyingHost(std::max(currentValue - incrementVal, minVal));
         }
-        //paramWhole->setValueNotifyingHost(random.nextFloat());
     }
 
 

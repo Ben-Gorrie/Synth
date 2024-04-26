@@ -88,7 +88,6 @@ private:
 
         // Parameters which control the proportion of wave types that are played when a key is pressed
         // Example: Setting sinProp = 1, triProp = 0.3, squareProp = 0.2 and sawProp = 0 results in a sound created in the ratio 0.2:0.3:1 by square, triangle and sine waves respectively
-        // Note that maxing all of these out will result in a sound which is 4 times too loud. This is as intended, so users should attempt to sum these parameters to 1.
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sinProp", 1), "Sine wave Proportion", 0, 1.0, 1.0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("triProp", 1), "Triangle wave Proportion", 0, 1.0, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("squareProp", 1), "Square wave Proportion", 0, 1.0, 0));

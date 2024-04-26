@@ -59,20 +59,20 @@ public:
         sustainParam = apvts.getParameter("sustain");    
         releaseParam = apvts.getParameter("release");    
 
-        pitchAttackParam = apvts.getRawParameterValue("attackPitch");
-        pitchDecayParam = apvts.getRawParameterValue("decayPitch");    
-        pitchSustainParam = apvts.getRawParameterValue("sustainPitch");    
-        pitchReleaseParam = apvts.getRawParameterValue("releasePitch");    
+        pitchAttackParam = apvts.getParameter("attackPitch");
+        pitchDecayParam = apvts.getParameter("decayPitch");    
+        pitchSustainParam = apvts.getParameter("sustainPitch");    
+        pitchReleaseParam = apvts.getParameter("releasePitch");    
 
-        pitchBendRangeParam = apvts.getRawParameterValue("pitchRange");
+        pitchBendRangeParam = apvts.getParameter("pitchRange");
 
-        sinPropParam = apvts.getRawParameterValue("sinProp");
-        triPropParam = apvts.getRawParameterValue("triProp");
-        squarePropParam = apvts.getRawParameterValue("squareProp");
-        sawPropParam = apvts.getRawParameterValue("sawProp");
+        sinPropParam = apvts.getParameter("sinProp");
+        triPropParam = apvts.getParameter("triProp");
+        squarePropParam = apvts.getParameter("squareProp");
+        sawPropParam = apvts.getParameter("sawProp");
 
-        phaseModIndexParam = apvts.getRawParameterValue("phaseModulationIndex");
-        phaseModFreqParam = apvts.getRawParameterValue("phaseModulationFreq");
+        phaseModIndexParam = apvts.getParameter("phaseModulationIndex");
+        phaseModFreqParam = apvts.getParameter("phaseModulationFreq");
 
         filterChoiceParam = apvts.getRawParameterValue("filterChoice");
         filterLFOFreqsParam = apvts.getRawParameterValue("filterLFOFreqs");
@@ -100,16 +100,6 @@ public:
             toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
         }
 
-
-        currentMidiNoteNumber = midiNoteNumber;
-        playing = true;
-        float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-
-        phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
-
-        env.setSampleRate(getSampleRate());
-        pitchEnv.setSampleRate(getSampleRate());
-
         juce::ADSR::Parameters envParams;
         juce::ADSR::Parameters pitchEnvParams;
         if (lifeControlParam->load())
@@ -118,6 +108,21 @@ public:
             toneMatrix.changeSliderParamAccordingToColumn(decayParam);
             toneMatrix.changeSliderParamAccordingToColumn(sustainParam);
             toneMatrix.changeSliderParamAccordingToColumn(releaseParam);
+
+            toneMatrix.changeSliderParamAccordingToColumn(pitchAttackParam);
+            toneMatrix.changeSliderParamAccordingToColumn(pitchDecayParam);
+            toneMatrix.changeSliderParamAccordingToColumn(pitchSustainParam);
+            toneMatrix.changeSliderParamAccordingToColumn(pitchReleaseParam);
+
+            toneMatrix.changeSliderParamAccordingToColumn(sinPropParam);
+            toneMatrix.changeSliderParamAccordingToColumn(triPropParam);
+            toneMatrix.changeSliderParamAccordingToColumn(squarePropParam);
+            toneMatrix.changeSliderParamAccordingToColumn(sawPropParam);
+
+            toneMatrix.changeSliderParamAccordingToColumn(phaseModIndexParam);
+            toneMatrix.changeSliderParamAccordingToColumn(phaseModFreqParam);
+
+            toneMatrix.changeSliderParamAccordingToColumn(pitchBendRangeParam);
         }
 
         envParams.attack = attackParam->getValue();
@@ -127,14 +132,22 @@ public:
 
         env.setParameters(envParams);
         
-        pitchEnvParams.attack = pitchAttackParam->load();
-        pitchEnvParams.decay = pitchDecayParam->load();
-        pitchEnvParams.sustain = pitchSustainParam->load();
-        pitchEnvParams.release = pitchReleaseParam->load();
+        pitchEnvParams.attack = pitchAttackParam->getValue();
+        pitchEnvParams.decay = pitchDecayParam->getValue();
+        pitchEnvParams.sustain = pitchSustainParam->getValue();
+        pitchEnvParams.release = pitchReleaseParam->getValue();
 
         pitchEnv.setParameters(pitchEnvParams);
 
-        
+
+        currentMidiNoteNumber = midiNoteNumber;
+        playing = true;
+        float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
+
+        phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
+
+        env.setSampleRate(getSampleRate());
+        pitchEnv.setSampleRate(getSampleRate());
 
         // Initialise the filter which changes cutoff based on LFOs 
         changingFilter.createLFOs(getSampleRate());
@@ -184,7 +197,7 @@ public:
                     toneMatrixVolumeBalancer++;
                 }
 
-                float floatMidiNote = currentMidiNoteNumber + pitchBendRangeParam->load() * pitchEnv.getNextSample();
+                float floatMidiNote = currentMidiNoteNumber + pitchBendRangeParam->getValue() * pitchEnv.getNextSample();
 
                 float frequency = 440 * pow(2, (floatMidiNote - 69) / 12);
 
@@ -269,20 +282,20 @@ private:
     juce::RangedAudioParameter* sustainParam;
     juce::RangedAudioParameter* releaseParam;
 
-    std::atomic<float>* pitchAttackParam;
-    std::atomic<float>* pitchDecayParam;
-    std::atomic<float>* pitchSustainParam;
-    std::atomic<float>* pitchReleaseParam;
+    juce::RangedAudioParameter* pitchAttackParam;
+    juce::RangedAudioParameter* pitchDecayParam;
+    juce::RangedAudioParameter* pitchSustainParam;
+    juce::RangedAudioParameter* pitchReleaseParam;
 
-    std::atomic<float>* pitchBendRangeParam;
+    juce::RangedAudioParameter* pitchBendRangeParam;
 
-    std::atomic<float>* sinPropParam;
-    std::atomic<float>* triPropParam;
-    std::atomic<float>* squarePropParam;
-    std::atomic<float>* sawPropParam;
+    juce::RangedAudioParameter* sinPropParam;
+    juce::RangedAudioParameter* triPropParam;
+    juce::RangedAudioParameter* squarePropParam;
+    juce::RangedAudioParameter* sawPropParam;
 
-    std::atomic<float>* phaseModIndexParam;
-    std::atomic<float>* phaseModFreqParam;
+    juce::RangedAudioParameter* phaseModIndexParam;
+    juce::RangedAudioParameter* phaseModFreqParam;
 
     ToneMatrix toneMatrix;
     ChangingFilter changingFilter;
