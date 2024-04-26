@@ -118,16 +118,8 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Reset the reverb and set the sample rate
     reverb.reset();
     reverb.setSampleRate(sampleRate);
-    //juce::Reverb::Parameters reverbParams;
-    //reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
-    //reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
-    //reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
-    //reverbParams.width = apvts.getRawParameterValue("reverbWidth")->load();
-    //reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
-    
-    // Set reverb parameters
-    //reverb.setParameters(reverbParams);
 
+    // Initialise the chorus
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -135,6 +127,7 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     chorus.prepare(spec);
 
+    // Set the sample rate for the panner
     panning.setSampleRate(sampleRate);
 
     
@@ -207,6 +200,20 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Create a processing context for replacing the audio in the block with processed audio.
     // This context is used to apply DSP effects directly to the audio block.
     juce::dsp::ProcessContextReplacing<float> context(block);
+
+    if (apvts.getRawParameterValue("lifeControl")->load())
+    {
+        // Use range-based for loop to process MIDI messages
+        for (const auto metadata : midiMessages)
+        {
+            const auto& message = metadata.getMessage();
+            //int samplePosition = metadata.samplePosition;
+
+            if (message.isNoteOn() && message.getVelocity() > 0)
+            {
+                ToneMatrix firstToneMatrix = dynamic_cast<LifeSynthVoice*>(synth.getVoice(0))->getToneMatrix();
+                       //HERE
+    }
 
     // Change chorus parameters
     chorus.setRate(apvts.getRawParameterValue("rate")->load());
