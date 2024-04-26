@@ -112,21 +112,21 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
         auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
-        voice->setInitialState(apvts.getRawParameterValue("lifeInitState"), apvts.getRawParameterValue("lifeRandomNumber"), sampleRate);
+        voice->setToneMatrixInitialState(apvts.getRawParameterValue("lifeInitState"), apvts.getRawParameterValue("lifeRandomNumber"), sampleRate);
     }
 
     // Reset the reverb and set the sample rate
     reverb.reset();
     reverb.setSampleRate(sampleRate);
-    juce::Reverb::Parameters reverbParams;
-    reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
-    reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
-    reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
-    reverbParams.width = apvts.getRawParameterValue("reverbWidth")->load();
-    reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
+    //juce::Reverb::Parameters reverbParams;
+    //reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
+    //reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
+    //reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
+    //reverbParams.width = apvts.getRawParameterValue("reverbWidth")->load();
+    //reverbParams.damping = apvts.getRawParameterValue("reverbDamping")->load();
     
     // Set reverb parameters
-    reverb.setParameters(reverbParams);
+    //reverb.setParameters(reverbParams);
 
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -221,6 +221,27 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     {
         // Change the reverb parameters if the reverb is turned on
         juce::Reverb::Parameters reverbParams;
+
+        if (apvts.getRawParameterValue("lifeControl")->load())
+        {
+            // Use range-based for loop to process MIDI messages
+            for (const auto metadata : midiMessages)
+            {
+                const auto& message = metadata.getMessage();
+                //int samplePosition = metadata.samplePosition;
+
+                if (message.isNoteOn() && message.getVelocity() > 0)
+                {
+                    ToneMatrix firstToneMatrix = dynamic_cast<LifeSynthVoice*>(synth.getVoice(0))->getToneMatrix();
+                    firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbDry"));
+                    firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbWet"));
+                    firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbRoomSize"));
+                    firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbWidth"));
+                    firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbDamping"));
+
+                }
+            }
+        }
         reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
         reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
         reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();

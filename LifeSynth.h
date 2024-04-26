@@ -235,9 +235,14 @@ public:
         }
     }
 
-    void setInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
+    void setToneMatrixInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
     {
         toneMatrix.setInitialState(choiceParam, randomNumberOfCellsParam, sampleRate);
+    }
+
+    ToneMatrix getToneMatrix()
+    {
+        return toneMatrix;
     }
 
     //--------------------------------------------------------------------------
