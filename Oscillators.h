@@ -25,7 +25,7 @@ public:
         }
 
 
-        float modulatedPhase = phase + modulationIndex * modulationValue;
+        float modulatedPhase = phase + modulationIndex * fabsf(modulationValue);
 
         // Return the phase passed through output()
         return output(modulatedPhase);

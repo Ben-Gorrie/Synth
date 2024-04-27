@@ -68,7 +68,7 @@ public:
 
     /**
      *  Sets the parameters for phase modulation to take place. When the phase of an oscillator has been incremented by its phaseDelta, 
-     *  we compute <float modulatedPhase = phase + modulationIndex * modulationValue>. 
+     *  we compute <float modulatedPhase = phase + modulationIndex * |modulationValue|>. 
      *  modulationValue is the output of a sine oscillator whose frequency is determined by phaseModFreq. 
      *  Note that setting any of these to 0 will result in no phase modulation taking place.  
      *  @param phaseModIndex The phase mdulation index. More extreme values will result in more phase modulation taking place.
@@ -86,41 +86,67 @@ public:
         sinOscPhaseModulator.setFrequency(phaseModFreq->getValue());
     }
 
+    /**
+     *  Sets the frequencies of the phasors.
+     *  @param frequency Frequency which the phasors will use.
+     * */
     void setFrequencies(float frequency)
     {
+        // Set the frequency for each phasor
         for (auto& phasor : phasors)
         {
             phasor->setFrequency(frequency);
         }
     }
 
+    /**
+     *  The main function of the class, this gets called every time a note needs to be played.
+     *  First, this sets the phase modulation value for each phasor by calculating the output of a sine oscillator.
+     *  Then, this processes each phasor, multiplies the relevant phasor output by the relevant phasor proportion and divides it by the sum of each phasor proportion.
+     *  This ensures that the output is always less than 1, but still weighted by the correct phasor proportions. If all proportions are 0, return 0.  
+     *  @return The combined normalised output of each oscillator in the right proportions.
+     * */
     float process()
     {
-        float rawWave = 0;
+        // Initialise the raw sample and the sum of the proportions.
+        float rawSample = 0;
         float sumProportion = 0;
+
+        // Calculate the sum of the proportions
         for (int i = 0; i < phasorProportions.size(); i++)
         {
             sumProportion += phasorProportions[i];
         }
 
+        // If each proportion is 0, return 0 to avoid division error.
         if (sumProportion == 0)
         {
             return 0;
         }
 
+        // Compute the phase modulation value 
+        float modulationValue = sinOscPhaseModulator.process();
+
         for (int i = 0; i < phasors.size(); i++)
         {
-            phasors[i]->setModulationValue(sinOscPhaseModulator.process());
-            rawWave += phasors[i]->process() * (phasorProportions[i] / sumProportion);
+            // Set the phase modulation value for each phasor
+            phasors[i]->setModulationValue(modulationValue);
+
+            // Increment the sample by the scaled output of each phasor, ensuring normalisation takes place
+            rawSample += phasors[i]->process() * (phasorProportions[i] / sumProportion);
         }
-        return rawWave;
+
+        return rawSample;
     }
     
 private:
+    // Vector to hold each type of phasor
     std::vector<Phasor*> phasors;
 
+    // Vector to hold the values for each phasor proportion we should use
     std::vector<float> phasorProportions = {1.0f, 0.0f, 0.0f, 0.0f};
 
+    // Sine oscillator to modulate the phase of each oscillator
     SinOsc sinOscPhaseModulator;
 
 };
