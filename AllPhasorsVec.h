@@ -12,17 +12,26 @@
 class AllPhasorsVec
 {
 public:
-    void initPhasors(float sampleRate,
-                     juce::RangedAudioParameter* sinProp, juce::RangedAudioParameter* triProp, juce::RangedAudioParameter* squareProp, juce::RangedAudioParameter* sawProp,
-                     juce::RangedAudioParameter* phaseModIndex, juce::RangedAudioParameter* phaseModFreq)
+    AllPhasorsVec()
     {
         phasors.clear();
-        phasorProportions.clear();
 
         phasors.push_back(new SinOsc());
         phasors.push_back(new TriOsc());
         phasors.push_back(new SquareOsc());
         phasors.push_back(new SawOsc());
+    }
+    void initPhasors(float sampleRate,
+                     juce::RangedAudioParameter* sinProp, juce::RangedAudioParameter* triProp, juce::RangedAudioParameter* squareProp, juce::RangedAudioParameter* sawProp,
+                     juce::RangedAudioParameter* phaseModIndex, juce::RangedAudioParameter* phaseModFreq)
+    {
+        //phasors.clear();
+        phasorProportions.clear();
+
+        //phasors.push_back(new SinOsc());
+        //phasors.push_back(new TriOsc());
+        //phasors.push_back(new SquareOsc());
+        //phasors.push_back(new SawOsc());
         for (auto& phasor : phasors)
         {
             phasor->setSampleRate(sampleRate);
