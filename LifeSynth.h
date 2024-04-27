@@ -42,7 +42,10 @@ public:
 class LifeSynthVoice : public juce::SynthesiserVoice
 {
 public:
-    LifeSynthVoice() {}
+    LifeSynthVoice() 
+    {
+        phasors.setSampleRate(getSampleRate());
+    }
     //--------------------------------------------------------------------------
 
     
@@ -141,7 +144,7 @@ public:
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
-        phasors.initPhasors(getSampleRate(), sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
+        phasors.initPhasors(sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
 
         env.setSampleRate(getSampleRate());
         pitchEnv.setSampleRate(getSampleRate());
