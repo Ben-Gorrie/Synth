@@ -28,7 +28,7 @@ apvts(*this, nullptr, "ParamTree", createParameterLayout())
         synth.addVoice(new LifeSynthVoice());
     }
     synth.addSound(new LifeSynthSound());
-    synth.setNoteStealingEnabled(true);
+    synth.setNoteStealingEnabled(false);
 
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
