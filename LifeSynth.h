@@ -144,7 +144,8 @@ public:
         playing = true;
         float freq = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
 
-        phasors.initPhasors(sinPropParam, triPropParam, squarePropParam, sawPropParam, phaseModIndexParam, phaseModFreqParam);
+        phasors.setPhasorProportions(sinPropParam, triPropParam, squarePropParam, sawPropParam);
+        phasors.setPhaseModulationParams(phaseModIndexParam, phaseModFreqParam);
 
         env.setSampleRate(getSampleRate());
         pitchEnv.setSampleRate(getSampleRate());

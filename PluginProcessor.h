@@ -128,7 +128,7 @@ private:
         // Sets modulation index
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationIndex", 1), "Phase Modulation Index", 0.0f, 10.0f, 1.0f));
         // Frequency that controls frequency of modulator oscillator
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 20.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 1.0f, 0.5f));
 
         // Filter parameters 
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("filterChoice", 1), "Low-Pass filter toggle", false));
