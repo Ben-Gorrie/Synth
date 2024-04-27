@@ -95,10 +95,7 @@ public:
     void startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
     {
 
-        if (lifeResetParam->load())
-        {
-            toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
-        }
+        
 
         juce::ADSR::Parameters envParams;
         juce::ADSR::Parameters pitchEnvParams;
@@ -150,9 +147,13 @@ public:
         pitchEnv.setSampleRate(getSampleRate());
 
         // Initialise the filter which changes cutoff based on LFOs 
-        changingFilter.createLFOs(getSampleRate());
-        changingFilter.setLFOFrequencies(filterLFOFreqsParam->load(), filterLFOFreqsOffsetParam->load());
-        changingFilter.initFilter();
+        if (filterChoiceParam->load())
+        {
+            changingFilter.createLFOs(getSampleRate());
+            changingFilter.setLFOFrequencies(filterLFOFreqsParam->load(), filterLFOFreqsOffsetParam->load());
+        }
+        
+        //changingFilter.initFilter();
 
         env.noteOn();
         pitchEnv.noteOn();
@@ -218,7 +219,7 @@ public:
                 // for each channel, write the currentSample float to the output
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
-                    outputBuffer.addSample(chan, sampleIndex, combinedSample * envValue);
+                    outputBuffer.addSample(chan, sampleIndex, combinedSample * envValue * 0.5f);
                 }
 
                 if (!env.isActive())
@@ -232,6 +233,11 @@ public:
             {
                 toneMatrix.incrementColumnAndWrap();
             }
+        }
+
+        if (lifeResetParam->load())
+        {
+            toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
         }
     }
 

@@ -19,6 +19,10 @@
 class ChangingFilter
 {
 public:
+    ChangingFilter()
+    {
+        filter.reset();
+    }
     
     /**
      *  Creates LFOs

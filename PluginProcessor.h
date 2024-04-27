@@ -60,7 +60,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthAudioProcessor)
     // synth object with max number of voices
     juce::Synthesiser synth;
-    int voiceCount = 8;
+    int voiceCount = 10;
 
     // Audio Processor Value Tree State which stores user-controllable parameters
     juce::AudioProcessorValueTreeState apvts;
@@ -134,7 +134,7 @@ private:
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("filterChoice", 1), "Low-Pass filter toggle", false));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqs", 1), "Frequency determining changing low-pass filter cutoff", 0.0f, 10.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqsOffset", 1), "Frequency offset for LFOs", 0.0f, 10.0f, 1.0f));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterBaseCutoff", 1), "Base cutoff for low-pass filter", 0.0f, 7000.0f, 700.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterBaseCutoff", 1), "Base cutoff for low-pass filter", 0.0f, 700.0f, 200.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterModulationDepth", 1), "Modulation depth for cutoff", 0.0f, 300.0f, 100.0f));
 
         return layout;
