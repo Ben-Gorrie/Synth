@@ -12,13 +12,15 @@
 #include <vector>
 #include "Oscillators.h"
 
-
 /**
  * Class that applies a changing low pass filter to a sample 
  */
 class ChangingFilter
 {
 public:
+    /**
+     *  Constructor. Resets the filter before it is used.
+     * */
     ChangingFilter()
     {
         filter.reset();
