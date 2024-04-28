@@ -65,6 +65,6 @@ public:
     }
 
 private:
-    // Sin shaped LFO
+    // Sine shaped LFO
     SinOsc lfo;
 };
