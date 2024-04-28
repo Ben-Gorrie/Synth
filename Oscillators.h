@@ -18,16 +18,16 @@ public:
         // Increment phase
         phase += phaseDelta;
 
-        // Warp phase if greater than 1
+        // Wrap phase if greater than 1
         if (phase > 1.0)
         {
             phase -= 1.0f;
         }
 
-
+        // Compute phase modulation
         float modulatedPhase = phase + modulationIndex * fabsf(modulationValue);
 
-        // Return the phase passed through output()
+        // Return the modulated phase passed through output()
         return output(modulatedPhase);
     }
 
@@ -89,11 +89,19 @@ public:
         return phase;  
     }
 
+    /**
+     *  Sets the modulation index for the oscillator
+     *  @param mi Modulation index value
+     * */
     void setModulationIndex(float mi) 
     {
         modulationIndex = mi;
     }
 
+    /**
+     *  Sets the phase modulation value for the oscillator
+     *  @param mv Phase modulation value
+     * */
     void setModulationValue(float mv)
     {
         modulationValue = mv;
@@ -108,6 +116,7 @@ private:
     float phaseDelta;
 
 protected:
+    // Variables that store phase modulation index and value respectively
     float modulationIndex = 0.0f;
     float modulationValue = 0.0f;
 };
@@ -120,6 +129,7 @@ class TriOsc : public Phasor
 {
     /**
      *  Override the base phasor function to generate a triangular wave
+     *  Allows for phase modulation if the variables modulationIndex and modulationValue are not 0
      *  @param p Phase of the phasor
      */
     float output(float modulatedPhase) override
@@ -127,6 +137,7 @@ class TriOsc : public Phasor
         // Wrap the modulatedPhase back into the 0 to 1 range if needed.
         modulatedPhase = modulatedPhase - floor(modulatedPhase);
 
+        // Return some value between -1 and 1
         return 4 * (fabsf(modulatedPhase - 0.5f) - 0.25f);
     }
 };
@@ -154,7 +165,8 @@ class SquareOsc : public Phasor
 {
 public:
     /**
-     *  Override the base phasor function to generate a square wave. Also tracks when the square wave has just flipped
+     *  Override the base phasor function to generate a square wave.
+     *  Allows for phase modulation if the variables modulationIndex and modulationValue are not 0
      *  @param p Phase of the phasor
      */
     float output(float modulatedPhase) override
@@ -182,7 +194,7 @@ public:
     }
 
 private:
-    // Variable which store pulse width of the square wave
+    // Variable which stores pulse width of the square wave
     float pulseWidth = 0.5f;
 };
 

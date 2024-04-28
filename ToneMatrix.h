@@ -7,6 +7,7 @@
 /**
  *  Class to simulate a musical tone matrix using the Game of Life automaton rules.
  *  It manages a set of oscillators that generate tones based on the cellular states of the game of life.
+ *  Its main function, process(), will return a normalised sample using these oscillators.
  */
 class ToneMatrix
 {
