@@ -99,5 +99,5 @@ private:
     }
 
     int width, height;  // Dimensions of the grid.
-    std::vector<bool> grid;  // Grid to store the state of each cell.
+    std::vector<bool> grid;  // Grid to store the state of each cell. Note that although this is one dimensional, if the width is known, we can essentially convert this to a 2d grid.
 };

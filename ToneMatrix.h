@@ -59,7 +59,8 @@ public:
      *  It is entirely possible that a randomly set game of life ends up empty after a few updates, which is not very interesting.
      *  @param randomNumberOfCellsParam Pointer to the random number of cells parameter.
      *  If choiceParam is set to "random" (represented internally as 5), then this parameter determines how many initial cells are alive. 
-     *  However, their configuration will be random.      *  @param sampleRate The sample rate for audio processing.
+     *  However, their configuration will be random.      
+     *  @param sampleRate The sample rate for audio processing.
      */
     void setInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
     {
@@ -69,6 +70,9 @@ public:
         // Determine which preset state should be used and set it to the game of life grid.
         std::vector<std::pair<int, int>> presetState = presetStates(choiceNumber, randomNumberOfLiveCells);
         gameOfLife.setInitialState(presetState);
+
+        // Reset the column back to the first one 
+        currentColumn = 0;
 
         // Set the sample rate for each oscillator
         for (int i = 0; i < gameOfLife.getHeight(); i++)
@@ -215,7 +219,7 @@ private:
     // Triangular oscillators to play when a live cell is found
     std::vector<TriOsc> phasors;
 
-    // The current column of the gmae of life the tone matrix is considering
+    // The current column of the game of life the tone matrix is considering
     int currentColumn = 0;
 
     // Random number generator to change the parameter increments
