@@ -21,15 +21,16 @@ SynthAudioProcessor::SynthAudioProcessor()
                      #endif
                        ),
 #endif
-apvts(*this, nullptr, "ParamTree", createParameterLayout())
+apvts(*this, nullptr, "ParamTree", createParameterLayout()) // Create user controllable parameters
 {
     for (int i = 0; i < voiceCount; i++)
     {
-        synth.addVoice(new LifeSynthVoice());
+        synth.addVoice(new LifeSynthVoice()); // Create as many voices as desired
     }
-    synth.addSound(new LifeSynthSound());
-    synth.setNoteStealingEnabled(false);
+    synth.addSound(new LifeSynthSound()); // Create a synth sound. Determines which voices should play
+    synth.setNoteStealingEnabled(false); // Disable voice stealing. Voice stealing can produce clicks due to sounds getting suddenly cut off
 
+    // Give each synth voice access to the user controllable parameters
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
         auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
@@ -104,11 +105,17 @@ void SynthAudioProcessor::changeProgramName (int index, const juce::String& newN
 }
 
 //==============================================================================
+/*
+ *  This function is only called when we prepare to play a sound, usually only once
+ *  @sampleRate Sample rate to use
+ *  @param samplesPerBlock The number of samples in each block of audio to process.
+ * */
 void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Set the sample rate for the synth
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
+    // Set the initial state for the tone matrix for each voice in the synth using the default values for the parameters
     for (int i = 0; i < synth.getNumVoices(); i++)
     {
         auto voice = dynamic_cast<LifeSynthVoice*>(synth.getVoice(i));
@@ -129,11 +136,6 @@ void SynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     // Set the sample rate for the panner
     panning.setSampleRate(sampleRate);
-
-    
-    juce::File logFile("~/logfile.txt");
-    logFile.deleteFile(); // Clear the log file at startup
-    juce::Logger::setCurrentLogger(new juce::FileLogger(logFile, "Log Header", 0));
 }
 
 void SynthAudioProcessor::releaseResources()
@@ -186,13 +188,8 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // Store the number of samples 
     int numSamples = buffer.getNumSamples();
 
-    //float* left = buffer.getWritePointer(0);
-    //float* right = buffer.getWritePointer(1);
-
-
     // Process the buffer with the synth
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
-
 
     // Create an AudioBlock from the given audio buffer. This wraps the buffer in a DSP-friendly format.
     juce::dsp::AudioBlock<float> block(buffer);
@@ -201,16 +198,18 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     // This context is used to apply DSP effects directly to the audio block.
     juce::dsp::ProcessContextReplacing<float> context(block);
 
+    // If the synth is allowed to change parameters according to the tone matrix's game of life, perform these steps here
     if (apvts.getRawParameterValue("lifeControl")->load())
     {
         // Use range-based for loop to process MIDI messages
         for (const auto metadata : midiMessages)
         {
             const auto& message = metadata.getMessage();
-            //int samplePosition = metadata.samplePosition;
 
+            // If the note has just turned on, change the parameters
             if (message.isNoteOn() && message.getVelocity() > 0)
             {
+                // Change rate, depth and mix parameters for the chorus according to the tone matrix of the first voice
                 ToneMatrix firstToneMatrix = dynamic_cast<LifeSynthVoice*>(synth.getVoice(0))->getToneMatrix();
                 firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("rate"));
                 firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("depth"));
@@ -239,10 +238,11 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
             for (const auto metadata : midiMessages)
             {
                 const auto& message = metadata.getMessage();
-                //int samplePosition = metadata.samplePosition;
 
+                // If the note has just turned on, change the parameters
                 if (message.isNoteOn() && message.getVelocity() > 0)
                 {
+                    // Change reverb parameters according to the tone matrix of the first voice
                     ToneMatrix firstToneMatrix = dynamic_cast<LifeSynthVoice*>(synth.getVoice(0))->getToneMatrix();
                     firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbDry"));
                     firstToneMatrix.changeSliderParamAccordingToColumn(apvts.getParameter("reverbWet"));
@@ -253,6 +253,8 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
                 }
             }
         }
+
+        // Set the reverb parameters
         reverbParams.dryLevel = apvts.getRawParameterValue("reverbDry")->load();
         reverbParams.wetLevel = apvts.getRawParameterValue("reverbWet")->load();
         reverbParams.roomSize = apvts.getRawParameterValue("reverbRoomSize")->load();
@@ -266,13 +268,17 @@ void SynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         reverb.processStereo(left, right, numSamples);
     }
 
+    // If panning is allowed, pan the audio
     if (apvts.getRawParameterValue("panningChoice")->load())
     {
-
+        // Get pointers to the left and right channel (assuming stereo output)
         float* left = buffer.getWritePointer(0);
         float* right = buffer.getWritePointer(1);
 
+        // Set the frequency of the panning to the user controllable parameter
         panning.setFrequency(apvts.getRawParameterValue("panningRate")->load());
+
+        // Set the samples of the left and right channel according to the output of the panner being fed the previous input sample
         for (int i = 0; i < numSamples; i++)
         {
             float sample = buffer.getSample(0, i);
@@ -298,8 +304,7 @@ juce::AudioProcessorEditor* SynthAudioProcessor::createEditor()
 //==============================================================================
 void SynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes as intermediaries to make it easy to save and load complex data.
+    // Store your parameters in the memory block.
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
     copyXmlToBinary (*xml, destData);
@@ -307,8 +312,7 @@ void SynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 
 void SynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    // Restore your parameters from this memory block,
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));       
     if (xmlState.get() != nullptr)
     {
