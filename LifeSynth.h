@@ -210,6 +210,7 @@ public:
      The Main DSP Block
      
      If the sound that the voice is playing finishes during the course of this rendered block, it must call clearCurrentNote(), to tell the synthesiser that it has finished
+     This function fills the output buffer with some samples from the start sample to (startSample + numSamples). See the comments inside the function for more detail
 
      @param outputBuffer pointer to output
      @param startSample position of first sample in buffer
@@ -223,25 +224,35 @@ public:
             for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
             {
 
+                // Assume that the tone matrix will not play a sound. If it does, change this variable to store the sample
                 float toneMatrixSample = 0;
+
+                // This variable prevents the synth from producing samples that are greater than 1 if the tone matrix is allowed to play a sound
                 int toneMatrixVolumeBalancer = 1;
+
+                // If the tone matrix is allowed to play a sound
                 if (lifeNoteParam->load())
                 {
                     toneMatrixSample = toneMatrix.process();
                     toneMatrixVolumeBalancer++;
                 }
 
+                // Implement pitch bending to change the midi note around the current value. Use the pitch envelope for this.
                 float floatMidiNote = currentMidiNoteNumber + pitchBendRangeParam->getValue() * pitchEnv.getNextSample();
 
+                // Use midiToFrequency code as juce's getMidiNoteinHertz only allows integer input 
                 float frequency = 440 * pow(2, (floatMidiNote - 69) / 12);
 
+                // Set the frequencies of the phasors to the required pitch bent frequency
                 phasors.setFrequencies(frequency);
 
-                float synthMixSample = phasors.process(); 
-                float envValue = env.getNextSample();
+                // Process the phasors to produce a note with the correct frequency
+                float synthNoteSample = phasors.process(); 
 
-                float combinedSample = (synthMixSample + toneMatrixSample ) / toneMatrixVolumeBalancer;
+                // Combine this previous value with the output of the tone matrix. The use of the toneMatrixVolumeBalancer becomes clearer here
+                float combinedSample = (synthNoteSample + toneMatrixSample) / toneMatrixVolumeBalancer;
 
+                // If the filter is active, change its cutoff value and then pass the sample through it.
                 if (filterChoiceParam->load())
                 {
                     changingFilter.setCutoff(filterBaseCutoffParam->load(), filterModulationDepthParam->load());
@@ -249,12 +260,25 @@ public:
                     combinedSample = changingFilter.process(combinedSample);
                 }
                 
-                // for each channel, write the currentSample float to the output
+
+                // Get the next value from the amplitude envelope
+                float envValue = env.getNextSample();
+
+                // For each channel, add the current sample to the output 
                 for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
                 {
-                    outputBuffer.addSample(chan, sampleIndex, combinedSample * envValue * 0.5f);
+                    float finalSample = combinedSample * envValue;
+
+                    // If the game of life is given control over parameters, half the output volume to prevent overly loud sounds
+                    if (lifeControlParam)
+                    {
+                        finalSample *= 0.5f;
+                    }
+
+                    outputBuffer.addSample(chan, sampleIndex, finalSample);
                 }
 
+                // If the amplitude envelope is no longer active, clear the current note and set playing to false
                 if (!env.isActive())
                 {
                     playing = false;
@@ -262,23 +286,35 @@ public:
                 }
             }
 
+            // If the voice has just finished playing a note, increment the column that the tone matrix should be looking at.
             if (playing == false)
             {
                 toneMatrix.incrementColumnAndWrap();
             }
         }
 
+        // Regardless of whether a note is playing, if the reset button for the tone matrix is toggled, reset the state to the specified preset
         if (lifeResetParam->load())
         {
             toneMatrix.setInitialState(lifeInitStateParam, lifeRandomNumberParam, getSampleRate());
         }
     }
 
+    /**
+     *  Wrapper fuction to allow the tone matrix to reset its state.
+     *  @param choiceParam The parameter which determines which initial state to set for the tone matrix
+     *  @param randomNumberOfCellsParam Determines the initial number of live cells if choiceParam is set to "random"
+     *  @param sampleRate Sample rate of the synth
+     * */
     void setToneMatrixInitialState(std::atomic<float>* choiceParam, std::atomic<float>* randomNumberOfCellsParam, float sampleRate)
     {
         toneMatrix.setInitialState(choiceParam, randomNumberOfCellsParam, sampleRate);
     }
 
+    /**
+     *  Wrapper function. Allows the synth to return the toneMatrix object
+     *  @return The current tone matrix
+     * */
     ToneMatrix getToneMatrix()
     {
         return toneMatrix;
@@ -302,20 +338,27 @@ public:
     //--------------------------------------------------------------------------
 private:
     //--------------------------------------------------------------------------
-    // Set up any necessary variables here
-    /// Should the voice be playing?
+    // Determines if any voice should be playing
     bool playing = false;
 
+    // Phasors to play when a note is pressed
     AllPhasorsVec phasors;
 
+    // Amplitude and pitch envelopes
     juce::ADSR env;
-
     juce::ADSR pitchEnv;
 
+    // Stores the current midi note number played
     int currentMidiNoteNumber;
 
-    std::atomic<float>* lifeControlParam;
+    // Tone matrix object
+    ToneMatrix toneMatrix;
 
+    // Changing low-pass filter
+    ChangingFilter changingFilter;
+
+    // User-controllable parameters
+    std::atomic<float>* lifeControlParam;
     std::atomic<float>* lifeNoteParam;
     std::atomic<float>* lifeResetParam;
     std::atomic<float>* lifeInitStateParam;
@@ -341,14 +384,10 @@ private:
     juce::RangedAudioParameter* phaseModIndexParam;
     juce::RangedAudioParameter* phaseModFreqParam;
 
-    ToneMatrix toneMatrix;
-    ChangingFilter changingFilter;
     std::atomic<float>* filterChoiceParam;
 
     std::atomic<float>* filterLFOFreqsParam;
     std::atomic<float>* filterLFOFreqsOffsetParam;
     std::atomic<float>* filterBaseCutoffParam;
     std::atomic<float>* filterModulationDepthParam;
-
-
 };
