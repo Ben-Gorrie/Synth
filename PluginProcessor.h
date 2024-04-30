@@ -148,5 +148,4 @@ private:
 
     // Panning
     Panning panning;
-
 };
