@@ -357,7 +357,7 @@ private:
     // Changing low-pass filter
     ChangingFilter changingFilter;
 
-    // User-controllable parameters
+    // User-controllable parameters. Note that parameters of type RangerAudioParameter are controllable by the tone matrix.
     std::atomic<float>* lifeControlParam;
     std::atomic<float>* lifeNoteParam;
     std::atomic<float>* lifeResetParam;

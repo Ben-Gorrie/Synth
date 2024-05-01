@@ -101,7 +101,7 @@ private:
         layout.add(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID("lifeInitState", 1), "Game of Life initial state", 
                                                                 juce::StringArray({"Cube", "Pentadecathlon", "Tumbler", "Figure eight", "Octagon 2", "Random"}), 2));
         // Number of cells to populate if the initial choice is Random
-        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("lifeRandomNumber", 1), "Game of Life initial number of random cells", 0, 128, 40));
+        layout.add(std::make_unique<juce::AudioParameterInt>(juce::ParameterID("lifeRandomNumber", 1), "GoL initial number of random cells", 0, 128, 40));
 
         // Toggles reverb on or off
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("reverbChoice", 1), "Reverb toggle", false));
@@ -132,7 +132,7 @@ private:
 
         // Filter parameters 
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("filterChoice", 1), "Low-Pass filter toggle", false));
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqs", 1), "Frequency determining changing low-pass filter cutoff", 0.0f, 10.0f, 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqs", 1), "Frequency for filter cutoff", 0.0f, 10.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterLFOFreqsOffset", 1), "Frequency offset for LFOs", 0.0f, 10.0f, 1.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterBaseCutoff", 1), "Base cutoff for low-pass filter", 0.0f, 700.0f, 200.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("filterModulationDepth", 1), "Modulation depth for cutoff", 0.0f, 300.0f, 100.0f));
