@@ -6,7 +6,7 @@ using namespace std;
 int main()
 {
     ToneMatrix toneMatrix;
-    toneMatrix.setInitialState(0, 40, 44100.0f);
+    toneMatrix.setInitialState(2, 40, 44100.0f);
 
     toneMatrix.getGame().visualize();
     for (int j = 0; j < 5; j++)
