@@ -93,6 +93,12 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("squareProp", 1), "Square wave Proportion", 0, 1.0, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("sawProp", 1), "Sawtooth wave Proportion", 0, 1.0, 0));
 
+
+        // Sets phase modulation index
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationIndex", 1), "Phase Modulation Index", 0.0f, 10.0f, 1.0f));
+        // Frequency that controls frequency of modulator oscillator
+        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 1.0f, 0.5f));
+
         // Controls whether the Tone Matrix, which changes according to the rules of the game of life, plays a note when a cell is live in a particular column
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("lifeNote", 1), "Game of Life note toggle", true));
         // Reset game of life toggle
@@ -125,10 +131,6 @@ private:
         layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("panningRate", 1), "Panning Rate", 0.01f, 5.0f, 0.1f));
 
 
-        // Sets modulation index
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationIndex", 1), "Phase Modulation Index", 0.0f, 10.0f, 1.0f));
-        // Frequency that controls frequency of modulator oscillator
-        layout.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("phaseModulationFreq", 1), "Phase Modulation Frequency", 0.0f, 1.0f, 0.5f));
 
         // Filter parameters 
         layout.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("filterChoice", 1), "Low-Pass filter toggle", false));
